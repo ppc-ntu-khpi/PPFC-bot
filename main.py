@@ -3,13 +3,12 @@ from tokenize import group
 from telebot import TeleBot
 from buttons import *
 from courses import coursesList
-from groups import groupsList
+from groups import extractGroupId, groupsList
 from disciplines import disciplinesList
 from common.Constants import Constants
 from groups import groupsList
 import markup as botMarkup
 from apiService import *
-from register import *
 from teachers import *
 from users import getUserId
 
@@ -17,27 +16,22 @@ tag: str = "BOT"
 headers = authenticate()
 tbot = TeleBot(Constants.botToken)
 
-coursesButtonsNames = coursesButtonsNames = coursesList(coursesApi(headers))
+сoursesButtonsNames = coursesList(coursesApi(headers))
 groupsButtonNames = []
 teacherButtonNames = []
-disciplinesButtonsNames = disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
-paramater = ""
-logger = False
+disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
 
 #тут був стакан
 
 @tbot.message_handler(commands=["start"])
 def start(message):
 
-    global logger
-
-    logger = False
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
         print("/start: user already exists")
         tbot.send_message(chat_id=message.chat.id, text = "Ми вас вже знаємо!", reply_markup=markup)
-        logger = True
+
     else: 
         replyMessage = "Зареєструйтеся. Оберіть хто ви:"
         print("/start: user registration")
@@ -48,9 +42,6 @@ def start(message):
 @tbot.message_handler(commands=["change"])
 def start(message):
 
-    global logger
-
-    logger = False
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.registerMarkup()
@@ -69,124 +60,217 @@ def messageListener(message):
     global groupsButtonNames
     global disciplinesButtonsNames
     global teacherButtonNames
-    global parameter
 
-    global logger
-
-    if logger == False:
-        if message.text ==  Register.TEACHER.value:
-            registerAsTeacher(headers, message)
-
-        if message.text ==  Register.STUDENT.value:
-            registerAsStudent(headers, message)
-
-        if message.text in coursesButtonsNames:
-            parameter = groupGetNames(message, headers) 
-            groupsButtonNames = groupsList(groupByCourse(headers, parameter))
-
-        if message.text in disciplinesButtonsNames:
-            parameter = teacherGetNames(message, headers)
-            teacherButtonNames = teachersList(teacherByDiscipline(headers, parameter))    
-
-        if message.text in groupsButtonNames:
-            userId = message.from_user.id
-            groupRegId = groupRegID(message, headers, parameter)
-            logger = True
-
-            userData = {
-	        "id": "{}".format(userId),
-	        "groupId":"{}".format(groupRegId)
-            }
-
-            register(userData, headers, userId)
-            markup = botMarkup.mainMenuMarkup()
-            userData = getUserId(getUserById(userId, headers))
-            
-            tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
-
-        if message.text in teacherButtonNames:
-            userId = message.from_user.id
-            teacherRegId = teacherRegID(message, headers, parameter)
-            logger = True
-
-            userData = {
-	        "id": "{}".format(userId),
-	        "teacherId":"{}".format(teacherRegId)
-            }
-
-            register(userData, headers, userId)
-            markup = botMarkup.mainMenuMarkup()
-            userData = getUserId(getUserById(userId, headers))
-
-            tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс викладача {}".format(userData.id), reply_markup=markup)
-
-
-    if logger == True:
-        if message.text ==  MainMenuButtons.FIND_BY_TEACHER.value:
-            userId= message.from_user.id
-
-            disciplines = disciplinesApi(headers)
-            disciplinesButtonsNames = disciplinesList(disciplines)
-            print("Find by teacher: discipline")
-            
-            markup = botMarkup.tripleMarkup(disciplinesButtonsNames)
-            tbot.send_message(chat_id=message.chat.id, text= "Виберіть дисципліну викладача:", reply_markup=markup)
-
-            return
+    if message.text ==  Register.TEACHER.value:
+        registerAsTeacher(headers, message)
+        tbot.register_next_step_handler(message, getTeachersNames, headers)
+        
 
         
-        if message.text ==  MainMenuButtons.FIND_BY_GROUP.value:
-            userId = message.from_user.id
+               
 
-            courses = coursesApi(headers)
-            coursesButtonsNames = coursesList(courses)
-            print("Find by group: course")
+    if message.text ==  Register.STUDENT.value:
+        registerAsStudent(headers, message)
+        tbot.register_next_step_handler(message, getGroupsNumbers, headers)
+        
+
+    '''if message.text in groupsButtonNames:
+        userId = message.from_user.id
+        groupRegId = groupRegID(message, headers)
+
+        userData = {
+	    "id": "{}".format(userId),
+	    "groupId":"{}".format(groupRegId)
+        }
+
+        register(userData, headers, userId)
+        markup = botMarkup.mainMenuMarkup()
+        userData = getUserId(getUserById(userId, headers))
             
-            markup = botMarkup.doubleMarkup(coursesButtonsNames)
-            tbot.send_message(chat_id=message.chat.id, text= "Оберіть курс групи:", reply_markup=markup)
+        tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
 
-            return
+    if message.text in teacherButtonNames:
+        userId = message.from_user.id
+        teacherRegId = teacherRegID(message, headers)
+       
 
-        if message.text == MainMenuButtons.FIND_BY_DAY.value:
-            markup = botMarkup.findByDayWMarkup()
-            print("Find by day")
-            tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
+        userData = {
+	    "id": "{}".format(userId),
+	    "teacherId":"{}".format(teacherRegId)
+        }
 
-            return
+        register(userData, headers, userId)
+        markup = botMarkup.mainMenuMarkup()
+        userData = getUserId(getUserById(userId, headers))
 
-        if message.text == MainMenuButtons.MAIN_MENU.value:
-            markup = botMarkup.mainMenuMarkup()
-            print("Main menu")
-            tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
+        tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс викладача {}".format(userData.id), reply_markup=markup)'''
 
-            return
+
+
+
+    if message.text ==  MainMenuButtons.FIND_BY_TEACHER.value:
+        userId= message.from_user.id
+
+        disciplines = disciplinesApi(headers)
+        disciplinesButtonsNames = disciplinesList(disciplines)
+        print("Find by teacher: discipline")
+            
+        markup = botMarkup.tripleMarkup(disciplinesButtonsNames)
+        tbot.send_message(chat_id=message.chat.id, text= "Виберіть дисципліну викладача:", reply_markup=markup)
+        tbot.register_next_step_handler(message, showTeachers, headers)
+
         
-        if message.text in coursesButtonsNames:
-            par = message.text
+    if message.text ==  MainMenuButtons.FIND_BY_GROUP.value:
+        userId = message.from_user.id
 
-            groupsByCourse = groupByCourse(headers, par)
-            groupsButtonNames = groupsList(groupsByCourse)
-            print("Find by group: group")
+        courses = coursesApi(headers)
+        coursesButtonsNames = coursesList(courses)
+        print("Find by group: course")
+            
+        markup = botMarkup.doubleMarkup(coursesButtonsNames)
+        tbot.send_message(chat_id=message.chat.id, text= "Оберіть курс групи:", reply_markup=markup)
+        tbot.register_next_step_handler(message, showGroups, headers)
 
-            markup = botMarkup.fiveMarkup(groupsButtonNames)
-            tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
+        return
 
-            return
+    if message.text == MainMenuButtons.FIND_BY_DAY.value:
+        markup = botMarkup.findByDayWMarkup()
+        print("Find by day")
+        tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
-        if message.text in disciplinesButtonsNames:
-            par = message.text
+        return
 
-            teachersByDiscipline = teacherByDiscipline(headers, par)
-            teachersButtonNames = teachersList(teachersByDiscipline)
-            print("Find by teacher: teacher")
+    if message.text == MainMenuButtons.MAIN_MENU.value:
+        markup = botMarkup.mainMenuMarkup()
+        print("Main menu")
+        tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
-            markup = botMarkup.tripleMarkup(teachersButtonNames)
-            tbot.send_message(chat_id=message.chat.id, text= "Оберіть викладача:", reply_markup=markup)
+        return
 
-            return
-        
         #userData.id = id of teacher or group, userData.isStudent = true or false
         #userData = getUserId(getUserById(userId, headers))
+
+
+
+def finalTeacherSearch(message, headers, par):
+    par = message.text
+
+    teacherData = getTeacherIdForUse(headers, par)
+    teacherId = extractTeacherId(teacherData)
+    print("Find by teacher: done")
+    print(teacherId)
+
+def showGroups(message, headers):
+    par = message.text
+
+    groupsByCourse = groupByCourse(headers, par)
+    groupsButtonNames = groupsList(groupsByCourse)
+    print("Find by group: group")
+
+    markup = botMarkup.fiveMarkup(groupsButtonNames)
+    tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
+
+def showTeachers(message, headers):
+    par = message.text
+
+    teachersByDiscipline = teacherByDiscipline(headers, par)
+    teacherButtonNames = teachersList(teachersByDiscipline)
+    print("Find by teacher: teacher")
+
+    markup = botMarkup.tripleMarkup(teacherButtonNames)
+    tbot.send_message(chat_id=message.chat.id, text= "Оберіть викладача:", reply_markup=markup)
+    tbot.register_next_step_handler(message, finalTeacherSearch, headers, par)
+    return
+
+
+
+#REGISTER
+def registerAsTeacher(headers,message):
+    
+    disciplines = disciplinesApi(headers)
+    disciplinesButtonsNames = disciplinesList(disciplines)
+    print("Register as teacher: discipline")
+
+    markup = botMarkup.tripleRegMarkup(disciplinesButtonsNames)
+    tbot.send_message(chat_id=message.chat.id, text= "Виберіть вашу дисципліну:", reply_markup=markup)
+
+    
+    
+
+def registerAsStudent(headers,message):
+
+    courses = coursesApi(headers)
+    coursesButtonsNames = coursesList(courses)
+    print("Register as student: course")
+        
+    markup = botMarkup.doubleRegMarkup(coursesButtonsNames)
+    tbot.send_message(chat_id=message.chat.id, text= "Оберіть курс вашої групи:", reply_markup=markup)
+
+
+
+def getTeachersNames(message, headers):
+    par = message.text
+    teachersByDiscipline = teacherByDiscipline(headers, par)
+    teacherButtonNames = teachersList(teachersByDiscipline)
+    print("Register as teacher: teacher")
+
+    markup = botMarkup.tripleRegMarkup(teacherButtonNames)
+    tbot.send_message(chat_id=message.chat.id, text= "Оберіть себе:", reply_markup=markup)
+
+    tbot.register_next_step_handler(message, getRegTeacherId, headers)
+    
+    
+def getGroupsNumbers(message, headers):
+    par = message.text
+
+    groupsByCourse = groupByCourse(headers, par)
+    groupsButtonNames = groupsList(groupsByCourse)
+    print("Register as group: group")
+
+    markup = botMarkup.fiveRegMarkup(groupsButtonNames)
+    tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
+    tbot.register_next_step_handler(message, getRegGroupId, headers)
+
+
+
+def getRegTeacherId(message, headers):
+    par = message.text
+    teacherData = getTeacherIdForUse(headers, par)
+    teacherId = extractTeacherId(teacherData)
+    print("Register as teacher: done")
+
+    userId = message.from_user.id
+    
+    userData = {
+	"id": "{}".format(userId),
+	"teacherId":"{}".format(teacherId)
+    }
+
+    register(userData, headers, userId)
+    markup = botMarkup.mainMenuMarkup()
+    userData = getUserId(getUserById(userId, headers))
+
+    tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс викладача {}".format(userData.id), reply_markup=markup)
+
+
+def getRegGroupId(message, headers):
+    par = message.text
+    groupData = getGroupIdForUse(headers, par)
+    groupId = extractGroupId(groupData)
+
+    print("Register as student: done")
+
+    userId = message.from_user.id
+
+    userData = {
+	"id": "{}".format(userId),
+	"groupId":"{}".format(groupId)
+    }
+    register(userData, headers, userId)
+    markup = botMarkup.mainMenuMarkup()
+    userData = getUserId(getUserById(userId, headers))
+            
+    tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
 
 
 def main():

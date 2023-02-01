@@ -15,7 +15,7 @@ def teachersList(jsonStr):
     buttonsList = []
     for teacherDict in teachersDictList:
         teacher = Teacher(teacherDict)
-        buttonsList.append(str(teacher.firstName))
+        buttonsList.append(str(teacher.firstName + " " + str(teacher.lastName)))
     return buttonsList
 
 def teachersIds(jsonStr):
@@ -25,3 +25,11 @@ def teachersIds(jsonStr):
         teacher = Teacher(teacherDict)
         teachersId.append(str(teacher.id))
     return teachersId
+
+def extractTeacherId(jsonStr):
+    teachersDictList = json.loads(jsonStr)
+    teacherId = ""
+    for teacherDict in teachersDictList:
+        teacher = Teacher(teacherDict)
+        teacherId = teacher.id
+    return teacherId

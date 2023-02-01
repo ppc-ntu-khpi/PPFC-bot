@@ -66,3 +66,18 @@ def getUserById(userId, headers):
         x = requests.get(url, headers = headers)
         userData = x.text
     return userData
+
+def getTeacherIdForUse(headers, par):
+    url = baseLink + '/teacher?teacherFullName='+ par
+    x = requests.get(url, headers = headers)
+    teacher = x.text
+    
+    return teacher
+
+def getGroupIdForUse(headers, par):
+    url = baseLink + '/group?groupNumber='+ par
+    x = requests.get(url, headers = headers)
+    group = x.text
+
+    return group
+
