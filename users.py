@@ -1,4 +1,5 @@
 import json
+from apiService import getUserById
 from groups import Group
 from teachers import Teacher
 
@@ -30,3 +31,14 @@ def getUserId(jsonStr):
             return None
             
         return UserId(teacher.id, user.isGroup)
+    
+def checkUserPerson(headers, userId):
+    userData = getUserId(getUserById(userId, headers))
+    if userData.isStudent == True:
+        data = '&groupId='+ str(userData.id)
+        return data 
+    
+    if userData.isStudent == False:
+        data = '&teacherId='+ str(userData.id)
+        return data
+    return data

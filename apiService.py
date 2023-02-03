@@ -1,6 +1,6 @@
 import requests
 import json
-
+import datetime
 baseLink = 'http://ppfc.eu-central-1.elasticbeanstalk.com/api'
 def authenticate():
     url = baseLink + '/authenticate'
@@ -81,3 +81,38 @@ def getGroupIdForUse(headers, par):
 
     return group
 
+def getScheduleByGroup(headers, par):
+    url = baseLink + '/schedule?groupId='+ str(par)
+    x = requests.get(url, headers = headers)
+    scheduleGroup = json.loads(x.text)
+    sorted_data = sorted(scheduleGroup, key=lambda x: (x['dayNumber'], x['lessonNumber']))
+
+    schedule = json.dumps(sorted_data)
+    return schedule
+
+def getScheduleByTeacher(headers, par):
+    url = baseLink + '/schedule?teacherId='+ str(par)
+    x = requests.get(url, headers = headers)
+    scheduleTeacher = json.loads(x.text)
+    sorted_data = sorted(scheduleTeacher, key=lambda x: (x['dayNumber'], x['lessonNumber']))
+
+    schedule = json.dumps(sorted_data)
+    return schedule
+
+def getChangesForRegUser(headers, date, userData):
+    url = baseLink + '/change?date='+ str(date) +str(userData)
+    x = requests.get(url, headers = headers)
+    changeForGroup = json.loads(x.text)
+    sorted_data = sorted(changeForGroup, key=lambda x: x['lessonNumber'])
+
+    change = json.dumps(sorted_data)
+    return change
+
+def getScheduleForRegUser(headers, date, userData):
+    url = baseLink + '/schedule?dayNumber='+ str(date) + str(userData)
+    x = requests.get(url, headers = headers)
+    changeForGroup = json.loads(x.text)
+    sorted_data = sorted(changeForGroup, key=lambda x: x['lessonNumber'])
+
+    change = json.dumps(sorted_data)
+    return change

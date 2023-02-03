@@ -1,7 +1,10 @@
+import datetime
+from datetime import date
 from time import sleep
 from tokenize import group
 from telebot import TeleBot
 from buttons import *
+from change import changeCreator
 from courses import coursesList
 from groups import extractGroupId, groupsList
 from disciplines import disciplinesList
@@ -9,8 +12,17 @@ from common.Constants import Constants
 from groups import groupsList
 import markup as botMarkup
 from apiService import *
+from schedule import scheduleCreator
 from teachers import *
-from users import getUserId
+from users import *
+
+
+today = date.today()
+tomorrow = date.today() + datetime.timedelta(days=1)
+
+print("Today: "+str(today))
+print("Next day: "+str(tomorrow))
+
 
 tag: str = "BOT"
 headers = authenticate()
@@ -66,48 +78,64 @@ def messageListener(message):
         tbot.register_next_step_handler(message, getTeachersNames, headers)
         
 
-        
-               
-
     if message.text ==  Register.STUDENT.value:
         registerAsStudent(headers, message)
         tbot.register_next_step_handler(message, getGroupsNumbers, headers)
+
+
+    if message.text == MainMenuButtons.SCHEDULE_TODAY.value:
+        todayDate = date.today().weekday() + 1
+        userId = message.from_user.id
+        userData = checkUserPerson(headers,userId)
+        schedule = getScheduleForRegUser(headers, todayDate, userData)
         
-
-    '''if message.text in groupsButtonNames:
+        print("Schedule for today")
+        scheduleForm = scheduleCreator(schedule)
+        if scheduleForm == " ":
+            scheduleForm = "Розклад відсутній"
+        tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
+    
+    if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
+        todayDate = date.today().weekday() + 2
+        if todayDate > 5:
+            todayDate = 1
         userId = message.from_user.id
-        groupRegId = groupRegID(message, headers)
+        userData = checkUserPerson(headers,userId)
+        schedule = getScheduleForRegUser(headers, todayDate, userData)
+        
+        print("Schedule for tomorrow")
+        scheduleForm = scheduleCreator(schedule)
+        if scheduleForm == " ":
+            scheduleForm = "Розклад відсутній"
+        tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
 
-        userData = {
-	    "id": "{}".format(userId),
-	    "groupId":"{}".format(groupRegId)
-        }
 
-        register(userData, headers, userId)
-        markup = botMarkup.mainMenuMarkup()
-        userData = getUserId(getUserById(userId, headers))
-            
-        tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
-
-    if message.text in teacherButtonNames:
+    if message.text == MainMenuButtons.CHANGES_TODAY.value:
+        todayDate = date.today()
         userId = message.from_user.id
-        teacherRegId = teacherRegID(message, headers)
-       
+        userData = checkUserPerson(headers,userId)
+        change = getChangesForRegUser(headers, todayDate, userData)
 
-        userData = {
-	    "id": "{}".format(userId),
-	    "teacherId":"{}".format(teacherRegId)
-        }
-
-        register(userData, headers, userId)
-        markup = botMarkup.mainMenuMarkup()
-        userData = getUserId(getUserById(userId, headers))
-
-        tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс викладача {}".format(userData.id), reply_markup=markup)'''
+        print("Changes for today")
+        changes = changeCreator(change)
+        if changes == " ":
+            changes = "Змін немає"
+        tbot.send_message(chat_id=message.chat.id, text= changes)
 
 
+    if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
+        tomorrowDate = date.today() + datetime.timedelta(days=1)
+        userId = message.from_user.id
+        userData = checkUserPerson(headers,userId)
+        change = getChangesForRegUser(headers, tomorrowDate, userData)
 
-
+        print("Changes for tomorrow")
+        changes = changeCreator(change)
+        if changes == " ":
+            changes = "Змін немає"
+        tbot.send_message(chat_id=message.chat.id, text= changes)
+    
+    
     if message.text ==  MainMenuButtons.FIND_BY_TEACHER.value:
         userId= message.from_user.id
 
@@ -151,14 +179,32 @@ def messageListener(message):
         #userData = getUserId(getUserById(userId, headers))
 
 
-
+# Main menu Functions
 def finalTeacherSearch(message, headers, par):
     par = message.text
 
     teacherData = getTeacherIdForUse(headers, par)
     teacherId = extractTeacherId(teacherData)
     print("Find by teacher: done")
-    print(teacherId)
+
+    par = teacherId
+
+    schedule = getScheduleByTeacher(headers,par)
+    formatedSchedule = scheduleCreator(schedule)
+    tbot.send_message(chat_id=message.chat.id, text= formatedSchedule)
+    
+
+def finalGroupSearch(message, headers, par):
+    par = message.text
+    groupData = getGroupIdForUse(headers, par)
+    groupId = extractGroupId(groupData)
+    print("Find by group: done")
+
+    par = groupId
+
+    schedule = getScheduleByGroup(headers,par)
+    formatedSchedule = scheduleCreator(schedule)
+    tbot.send_message(chat_id=message.chat.id, text= formatedSchedule)
 
 def showGroups(message, headers):
     par = message.text
@@ -169,6 +215,8 @@ def showGroups(message, headers):
 
     markup = botMarkup.fiveMarkup(groupsButtonNames)
     tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
+    tbot.register_next_step_handler(message, finalGroupSearch, headers, par)
+    return
 
 def showTeachers(message, headers):
     par = message.text
