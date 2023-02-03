@@ -12,7 +12,7 @@ from common.Constants import Constants
 from groups import groupsList
 import markup as botMarkup
 from apiService import *
-from schedule import scheduleCreator
+from schedule import formatDayToNumber, scheduleCreator
 from teachers import *
 from users import *
 
@@ -163,10 +163,11 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.FIND_BY_DAY.value:
         markup = botMarkup.findByDayWMarkup()
-        print("Find by day")
-        tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
+        print("Find by day: day")
+        tbot.send_message(chat_id=message.chat.id, text="Оберіть день тижня", reply_markup=markup)
+        tbot.register_next_step_handler(message, scheduleByDay, headers, )
 
-        return
+
 
     if message.text == MainMenuButtons.MAIN_MENU.value:
         markup = botMarkup.mainMenuMarkup()
@@ -180,6 +181,20 @@ def messageListener(message):
 
 
 # Main menu Functions
+def scheduleByDay(message, headers):
+    userId= message.from_user.id
+    userData = checkUserPerson(headers,userId)
+
+    dayNumber = formatDayToNumber(message)
+    schedule = getScheduleForRegUser(headers, dayNumber, userData)
+
+    print("Find by date: done")
+    scheduleForm = scheduleCreator(schedule)
+    if scheduleForm == " ":
+            scheduleForm = "Розклад відсутній"
+    tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
+
+
 def finalTeacherSearch(message, headers, par):
     par = message.text
 

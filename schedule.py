@@ -41,13 +41,13 @@ def scheduleCreator(jsonStr):
         schedules[dayNumber].append((lessonNumber, group, teacher, classroom))
     scheduleForm = " "
     for dayNumber, schedule in schedules.items():
-        dayName = formatDayNumber(dayNumber)
+        dayName = formatNumberToDay(dayNumber)
         scheduleForm += dayName + "\n"
         for lesson in schedule:
             scheduleForm += str(lesson[0]) + " пара ➡️ "+ str(lesson[1]) + " група ➡️ " + str(lesson[2]) + " ➡️ " + str(lesson[3]) + "ауд.\n"
     return scheduleForm
 
-def formatDayNumber(dayNumber):
+def formatNumberToDay(dayNumber):
     if dayNumber == 1:
         dayName = "Понеділок:"
     if dayNumber == 2:
@@ -59,3 +59,17 @@ def formatDayNumber(dayNumber):
     if dayNumber == 5:
         dayName = "П'ятниця:"
     return dayName
+
+def formatDayToNumber(message):
+    dayNumber = ""
+    if message.text == "Понеділок":
+        dayNumber = 1
+    if message.text == "Вівторок":
+        dayNumber = 2
+    if message.text == "Середа":
+        dayNumber = 3
+    if message.text == "Четвер":
+        dayNumber = 4
+    if message.text == "П'ятниця":
+        dayNumber = 5
+    return dayNumber
