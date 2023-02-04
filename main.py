@@ -15,7 +15,7 @@ from apiService import *
 from schedule import formatDayToNumber, scheduleCreator
 from teachers import *
 from users import *
-
+import sched, time
 
 today = date.today()
 tomorrow = date.today() + datetime.timedelta(days=1)
@@ -34,6 +34,15 @@ teacherButtonNames = []
 disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
 
 #тут був стакан
+
+def recreacteHeaders(scheduler): 
+
+    global headers
+
+    scheduler.enter(3300, 1, recreacteHeaders, (scheduler,))
+    headers = authenticate()
+
+
 
 @tbot.message_handler(commands=["start"])
 def start(message):
@@ -337,7 +346,9 @@ def getRegGroupId(message, headers):
 
 
 def main():
-    
+    my_scheduler = sched.scheduler(time.time, time.sleep)
+    my_scheduler.enter(3300, 1, recreacteHeaders, (my_scheduler,))
+    my_scheduler.run()
 
     tbot.infinity_polling()
     
