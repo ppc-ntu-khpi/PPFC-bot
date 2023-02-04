@@ -1,5 +1,6 @@
 import datetime
 from datetime import date
+from threading import Thread
 from time import sleep
 from tokenize import group
 from telebot import TeleBot
@@ -34,15 +35,6 @@ teacherButtonNames = []
 disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
 
 #тут був стакан
-
-def recreacteHeaders(scheduler): 
-
-    global headers
-
-    scheduler.enter(3300, 1, recreacteHeaders, (scheduler,))
-    headers = authenticate()
-
-
 
 @tbot.message_handler(commands=["start"])
 def start(message):
@@ -345,10 +337,22 @@ def getRegGroupId(message, headers):
     tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
 
 
-def main():
+def recreateHeaders(scheduler): 
+
+    global headers
+
+    scheduler.enter(3300, 1, recreateHeaders, (scheduler,))
+    headers = authenticate()
+    
+def delay():
     my_scheduler = sched.scheduler(time.time, time.sleep)
-    my_scheduler.enter(3300, 1, recreacteHeaders, (my_scheduler,))
+    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler,))
     my_scheduler.run()
+
+def main():
+    thread = Thread(target = delay)
+    thread.start()
+    
 
     tbot.infinity_polling()
     
