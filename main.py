@@ -166,85 +166,111 @@ def messageListener(message):
         markup = botMarkup.findByDayWMarkup()
         print("Find by day: day")
         tbot.send_message(chat_id=message.chat.id, text="Оберіть день тижня", reply_markup=markup)
-        tbot.register_next_step_handler(message, scheduleByDay, headers, )
+        tbot.register_next_step_handler(message, scheduleByDay, headers)
 
 
 
-    if message.text == MainMenuButtons.MAIN_MENU.value:
-        markup = botMarkup.mainMenuMarkup()
-        print("Main menu")
-        tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
-
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
         return
 
-        #userData.id = id of teacher or group, userData.isStudent = true or false
-        #userData = getUserId(getUserById(userId, headers))
+        
 
+#userData.id = id of teacher or group, userData.isStudent = true or false
+#userData = getUserId(getUserById(userId, headers))
+
+def MainMenuCheck(message):
+    if message.text == MainMenuButtons.MAIN_MENU.value:
+        return True
+    else: return False
+
+
+def returnToMainMenu(message):
+    markup = botMarkup.mainMenuMarkup()
+    print("Main menu")
+    tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
 # Main menu Functions
 def scheduleByDay(message, headers):
-    userId= message.from_user.id
-    userData = checkUserPerson(headers,userId)
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        userId= message.from_user.id
+        userData = checkUserPerson(headers,userId)
 
-    dayNumber = formatDayToNumber(message)
-    schedule = getScheduleForRegUser(headers, dayNumber, userData)
+        dayNumber = formatDayToNumber(message)
+        schedule = getScheduleForRegUser(headers, dayNumber, userData)
 
-    print("Find by date: done")
-    scheduleForm = scheduleCreator(schedule)
-    if scheduleForm == " ":
-            scheduleForm = "Розклад відсутній"
-    tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
+        print("Find by date: done")
+        
+        markup = botMarkup.mainMenuMarkup()
+        scheduleForm = scheduleCreator(schedule)
+        if scheduleForm == " ":
+                scheduleForm = "Розклад відсутній"
+        tbot.send_message(chat_id=message.chat.id, text= scheduleForm, reply_markup=markup)
 
 
 def finalTeacherSearch(message, headers, par):
-    par = message.text
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        par = message.text
 
-    teacherData = getTeacherIdForUse(headers, par)
-    teacherId = extractTeacherId(teacherData)
-    print("Find by teacher: done")
+        teacherData = getTeacherIdForUse(headers, par)
+        teacherId = extractTeacherId(teacherData)
+        print("Find by teacher: done")
 
-    par = teacherId
+        par = teacherId
 
-    schedule = getScheduleByTeacher(headers,par)
-    formatedSchedule = scheduleCreator(schedule)
-    tbot.send_message(chat_id=message.chat.id, text= formatedSchedule)
+        markup = botMarkup.mainMenuMarkup()
+        schedule = getScheduleByTeacher(headers,par)
+        formatedSchedule = scheduleCreator(schedule)
+        tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
     
 
 def finalGroupSearch(message, headers, par):
-    par = message.text
-    groupData = getGroupIdForUse(headers, par)
-    groupId = extractGroupId(groupData)
-    print("Find by group: done")
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        par = message.text
+        groupData = getGroupIdForUse(headers, par)
+        groupId = extractGroupId(groupData)
+        print("Find by group: done")
 
-    par = groupId
+        par = groupId
 
-    schedule = getScheduleByGroup(headers,par)
-    formatedSchedule = scheduleCreator(schedule)
-    tbot.send_message(chat_id=message.chat.id, text= formatedSchedule)
+        markup = botMarkup.mainMenuMarkup()
+        schedule = getScheduleByGroup(headers,par)
+        formatedSchedule = scheduleCreator(schedule)
+        tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
 
 def showGroups(message, headers):
-    par = message.text
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        par = message.text
 
-    groupsByCourse = groupByCourse(headers, par)
-    groupsButtonNames = groupsList(groupsByCourse)
-    print("Find by group: group")
+        groupsByCourse = groupByCourse(headers, par)
+        groupsButtonNames = groupsList(groupsByCourse)
+        print("Find by group: group")
 
-    markup = botMarkup.fiveMarkup(groupsButtonNames)
-    tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
-    tbot.register_next_step_handler(message, finalGroupSearch, headers, par)
-    return
+        markup = botMarkup.fiveMarkup(groupsButtonNames)
+        tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
+        tbot.register_next_step_handler(message, finalGroupSearch, headers, par)
 
 def showTeachers(message, headers):
-    par = message.text
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        par = message.text
 
-    teachersByDiscipline = teacherByDiscipline(headers, par)
-    teacherButtonNames = teachersList(teachersByDiscipline)
-    print("Find by teacher: teacher")
+        teachersByDiscipline = teacherByDiscipline(headers, par)
+        teacherButtonNames = teachersList(teachersByDiscipline)
+        print("Find by teacher: teacher")
 
-    markup = botMarkup.tripleMarkup(teacherButtonNames)
-    tbot.send_message(chat_id=message.chat.id, text= "Оберіть викладача:", reply_markup=markup)
-    tbot.register_next_step_handler(message, finalTeacherSearch, headers, par)
-    return
+        markup = botMarkup.tripleMarkup(teacherButtonNames)
+        tbot.send_message(chat_id=message.chat.id, text= "Оберіть викладача:", reply_markup=markup)
+        tbot.register_next_step_handler(message, finalTeacherSearch, headers, par)
 
 
 
