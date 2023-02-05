@@ -12,6 +12,7 @@ def authenticate():
     auth = json.loads(x.text)
     accToken = auth["accessToken"]
     print(accToken)
+    print("TOKEN GENERATED")
     headers = {'Authorization': "Bearer {}".format(accToken)}
 
     return headers
