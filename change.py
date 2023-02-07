@@ -30,6 +30,7 @@ def changeCreator(jsonStr):
     for changeDict in changeDictList:
         change = Change(changeDict)
         date = change.date
+        subject = change.subject.name
         lessonNumber = change.lessonNumber
         group = change.group.number
         teacher = change.teacher.lastName + " " + change.teacher.firstName
@@ -38,11 +39,11 @@ def changeCreator(jsonStr):
         if date not in changes:
             changes[date] = []
 
-        changes[date].append((lessonNumber, group, teacher, classroom))
+        changes[date].append((lessonNumber, subject, group, teacher, classroom))
 
     changeForm = " "
     for date, change in changes.items():
         changeForm += "Зміни на " + str(date) + "\n"
         for lesson in change:
-            changeForm += str(lesson[0]) + " пара ➡️ "+ str(lesson[1]) + " група ➡️ " + str(lesson[2]) + " ➡️ " + str(lesson[3]) + "ауд.\n"
+            changeForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + "ауд.\n"
     return changeForm

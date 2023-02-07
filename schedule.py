@@ -30,6 +30,7 @@ def scheduleCreator(jsonStr):
     for scheduleDict in scheduleDictList:
         schedule = Schedule(scheduleDict)
         dayNumber = schedule.dayNumber
+        subject = schedule.subject.name
         lessonNumber = schedule.lessonNumber
         group = schedule.group.number
         teacher = schedule.teacher.firstName + " " + schedule.teacher.lastName 
@@ -38,13 +39,13 @@ def scheduleCreator(jsonStr):
         if dayNumber not in schedules:
             schedules[dayNumber] = []
 
-        schedules[dayNumber].append((lessonNumber, group, teacher, classroom))
+        schedules[dayNumber].append((lessonNumber, subject, group, teacher, classroom))
     scheduleForm = " "
     for dayNumber, schedule in schedules.items():
         dayName = formatNumberToDay(dayNumber)
         scheduleForm += dayName + "\n"
         for lesson in schedule:
-            scheduleForm += str(lesson[0]) + " пара ➡️ "+ str(lesson[1]) + " група ➡️ " + str(lesson[2]) + " ➡️ " + str(lesson[3]) + "ауд.\n"
+            scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + "ауд.\n"
     return scheduleForm
 
 def formatNumberToDay(dayNumber):
