@@ -1,12 +1,17 @@
 import requests
 import json
 import datetime
+import os
+
+username = os.environ['USERNAME']
+password = os.environ['PASSWORD']
+
 baseLink = 'http://ppfc.eu-central-1.elasticbeanstalk.com/api'
 def authenticate():
     url = baseLink + '/authenticate'
     myobj = {
-	"username": "bot",
-	"password":"Qwerty1234"
+	"username": username,
+	"password": password
     }
     x = requests.post(url, json = myobj)
     auth = json.loads(x.text)
