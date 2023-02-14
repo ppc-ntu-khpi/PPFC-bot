@@ -16,7 +16,7 @@ def authenticate():
     x = requests.post(url, json = myobj)
     auth = json.loads(x.text)
     accToken = auth["accessToken"]
-    print(accToken)
+    #print(accToken)
     print("TOKEN GENERATED")
     headers = {'Authorization': "Bearer {}".format(accToken)}
 

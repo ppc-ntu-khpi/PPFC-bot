@@ -134,3 +134,35 @@ def fiveRegMarkup(Names):
 
         markup.row(*buttonsRow)
     return markup
+
+def additionalFuncMarkup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+
+    button1 = types.KeyboardButton(AdditionalFuncButtons.RINGS_SCHEDULE.value)
+    button2 = types.KeyboardButton(AdditionalFuncButtons.EDU_PROCESS.value)
+
+    button3 = types.KeyboardButton(AdditionalFuncButtons.COLLEGE_MAP.value)
+    button4 = types.KeyboardButton(AdditionalFuncButtons.WORK_SATURDAYS.value)
+
+    button5 = types.KeyboardButton(AdditionalFuncButtons.CHANGE_DATA.value)
+    mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+
+    markup.row(button1, button2)
+    markup.row(button3, button4)
+    markup.row(button5)
+    markup.row(mainMenu)
+
+    return markup
+
+def collegeMapMarkup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+    button1 = types.KeyboardButton(CollegeFloors.FIRST_FLOOR.value)
+    button2 = types.KeyboardButton(CollegeFloors.SECOND_FLOOR.value)
+
+    button3 = types.KeyboardButton(CollegeFloors.THIRD_FLOOR.value)
+    mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+
+    markup.row(button1, button2, button3)
+    markup.row(mainMenu)
+
+    return markup

@@ -22,3 +22,15 @@ class FindByDayButtons(str, Enum):
 class Register(str, Enum):
     STUDENT = "Я студент",
     TEACHER = "Я викладач"
+
+class AdditionalFuncButtons(str, Enum):
+    RINGS_SCHEDULE = "Розклад дзвінків⌛️",
+    EDU_PROCESS = "Графік НП",
+    COLLEGE_MAP = "Мапа коледжу",
+    WORK_SATURDAYS = "Робочі суботи",
+    CHANGE_DATA = "Змінити групу"
+
+class CollegeFloors(str, Enum):
+    FIRST_FLOOR = "I",
+    SECOND_FLOOR = "II",
+    THIRD_FLOOR = "III"

@@ -1,5 +1,5 @@
 import datetime
-from datetime import date
+from pytz import timezone
 from threading import Thread
 from time import sleep
 from tokenize import group
@@ -18,13 +18,23 @@ from teachers import *
 from users import *
 import sched, time
 import os
-today = date.today()
-tomorrow = date.today() + datetime.timedelta(days=1)
 
-print("Today: "+str(today))
-print("Next day: "+str(tomorrow))
+#--------------------- Date Control -------------------------------
+def dayToday():
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    return now
 
+def dayTomorrow():
+    tomorrow = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 1)
+    return tomorrow
 
+today = dayToday()
+tomorrow = dayTomorrow()
+
+print("Today: "+str(today.strftime("%Y-%m-%d")))
+print("Next day: "+str(tomorrow.strftime("%Y-%m-%d")))
+
+#----------------------- Message Control --------------------------
 tag: str = "BOT"
 headers = authenticate()
 tbot = TeleBot(Constants.botToken)
@@ -33,8 +43,6 @@ tbot = TeleBot(Constants.botToken)
 groupsButtonNames = []
 teacherButtonNames = []
 disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
-
-#тут був стакан
 
 @tbot.message_handler(commands=["start"])
 def start(message):
@@ -53,7 +61,7 @@ def start(message):
 
 
 @tbot.message_handler(commands=["change"])
-def change(message):
+def changeData(message):
 
     userId = message.from_user.id
     if checkUser(userId, headers):
@@ -87,7 +95,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.SCHEDULE_TODAY.value:
         if checkRegistration(message,headers):
-            todayDate = date.today().weekday() + 1
+            todayDate = dayToday().weekday() + 1
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, todayDate, userData)
@@ -100,12 +108,12 @@ def messageListener(message):
         
     if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
         if checkRegistration(message,headers):
-            todayDate = date.today().weekday() + 2
-            if todayDate > 5:
-                todayDate = 1
+            tomorrowDate = dayTomorrow().weekday() + 1
+            if tomorrowDate > 5:
+                tomorrowDate = 1
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
-            schedule = getScheduleForRegUser(headers, todayDate, userData)
+            schedule = getScheduleForRegUser(headers, tomorrowDate, userData)
                 
             print("Schedule for tomorrow")
             scheduleForm = scheduleCreator(schedule)
@@ -116,7 +124,8 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.CHANGES_TODAY.value:
         if checkRegistration(message,headers):
-            todayDate = date.today()
+            todayDate = dayToday().strftime("%Y-%m-%d")
+            print(todayDate)
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             change = getChangesForRegUser(headers, todayDate, userData)
@@ -130,7 +139,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
         if checkRegistration(message,headers):
-            tomorrowDate = date.today() + datetime.timedelta(days=1)
+            tomorrowDate = dayTomorrow().strftime("%Y-%m-%d")
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             change = getChangesForRegUser(headers, tomorrowDate, userData)
@@ -169,11 +178,75 @@ def messageListener(message):
 
 
     if message.text == MainMenuButtons.FIND_BY_DAY.value:
-        if checkRegistration(message,headers):
+        if checkRegistration(message, headers):
             markup = botMarkup.findByDayWMarkup()
             print("Find by day: day")
             tbot.send_message(chat_id=message.chat.id, text="Оберіть день тижня", reply_markup=markup)
             tbot.register_next_step_handler(message, scheduleByDay, headers)
+
+
+    if message.text == MainMenuButtons.HELP.value:
+        if checkRegistration(message, headers):
+            
+            helpInstruction = 'Вітаємо у боті для ВСП ППФК НТУ "ХПІ"\n'
+            helpInstruction += "\n"
+            helpInstruction += "Для перезавантаження бота використайте команду /start\n\n"
+            helpInstruction += "Для зміни ваших даних використайте команду /change\n"
+            helpInstruction += "\n"
+            helpInstruction += "Також ви можете переглянути усі додаткові функції натиснувши на відповідну кнопку у меню\n"
+            helpInstruction += "Для скарг та пропозицій приєднуйтесь до чату: https://t.me/PPFC_BOT_Support"
+
+            markup = botMarkup.mainMenuMarkup()
+            print("Button Help")
+            tbot.send_message(chat_id=message.chat.id, text=helpInstruction, reply_markup=markup)
+
+    if message.text == MainMenuButtons.ADDITIONAL_FUNCTIONS.value:
+        if checkRegistration(message,headers):
+            markup = botMarkup.additionalFuncMarkup()
+    
+            print("Additional functions")
+            tbot.send_message(chat_id=message.chat.id, text= "Доступні додаткові функції", reply_markup=markup)
+
+    if message.text == AdditionalFuncButtons.CHANGE_DATA:
+        if checkRegistration(message,headers):
+            markup = botMarkup.mainMenuMarkup()
+    
+            print("Change data through additional functions")
+            changeData(message)
+
+    if message.text == AdditionalFuncButtons.WORK_SATURDAYS:
+        if checkRegistration(message,headers):
+            
+            print("Working saturdays")
+            tbot.send_message(chat_id=message.chat.id, text= "Відсутні")
+
+    if message.text == AdditionalFuncButtons.EDU_PROCESS:
+        if checkRegistration(message,headers):
+
+            text = ""
+            text += "Повний розклад поки що відсутній. \n"
+            text += "Його буде додано пізніше у ході супроводу"
+
+            print("Education Process Plan")
+            tbot.send_message(chat_id=message.chat.id, text= text)
+        
+    if message.text == AdditionalFuncButtons.COLLEGE_MAP:
+        if checkRegistration(message,headers):
+            markup = botMarkup.collegeMapMarkup()
+
+            print("College map")
+            tbot.send_message(chat_id=message.chat.id, text= "Виберіть поверх", reply_markup = markup)
+            tbot.register_next_step_handler(message, showCollegeFloor)
+
+    if message.text == AdditionalFuncButtons.RINGS_SCHEDULE:
+        if checkRegistration(message,headers):
+
+            markup = botMarkup.mainMenuMarkup()
+            
+            print("Show ring schedule")
+            imageName = "data/ringSchedule.png"
+            tbot.send_photo(chat_id=message.chat.id, photo=open(imageName, 'rb'), reply_markup = markup)
+
 
 
 
@@ -181,9 +254,12 @@ def messageListener(message):
         returnToMainMenu(message)
         return
 
+
+
 #userData.id = id of teacher or group, userData.isStudent = true or false
 #userData = getUserId(getUserById(userId, headers))
 
+#------------------------------ Main check functions ---------------------------------
 def checkRegistration(message, headers):
     userId = message.from_user.id
     if not checkUser(userId, headers):
@@ -205,7 +281,7 @@ def returnToMainMenu(message):
     print("Main menu")
     tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
-# Main menu Functions
+#--------------------------- Main menu Functions (Finders) -----------------------------
 def scheduleByDay(message, headers):
     if MainMenuCheck(message):
         returnToMainMenu(message)
@@ -289,7 +365,7 @@ def showTeachers(message, headers):
 
 
 
-#REGISTER
+#------------------------------------ Registration Block ------------------------------------------
 def registerAsTeacher(headers,message):
     
     disciplines = disciplinesApi(headers)
@@ -378,6 +454,20 @@ def getRegGroupId(message, headers):
     tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
 
 
+
+def showCollegeFloor(message):
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        par = message.text
+        markup = botMarkup.mainMenuMarkup()
+        print("Show " + par + " floor")
+       
+        imageName = "data/" + par + ".jpg"
+        tbot.send_photo(chat_id=message.chat.id, photo=open(imageName, 'rb'), reply_markup = markup)
+
+
+#----------------------------Main Thread-------------------------------
 def recreateHeaders(scheduler): 
 
     global headers
@@ -387,7 +477,7 @@ def recreateHeaders(scheduler):
     
 def delay():
     my_scheduler = sched.scheduler(time.time, time.sleep)
-    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler,))
+    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler))
     my_scheduler.run()
 
 def main():
