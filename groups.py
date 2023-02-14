@@ -31,3 +31,8 @@ def extractGroupId(jsonStr):
         group = Group(groupDict)
         groupId = group.id
     return groupId
+
+def extractGroupNumber(jsonStr):
+    groupDict = json.loads(jsonStr)
+    groupNumber = groupDict["number"]
+    return groupNumber

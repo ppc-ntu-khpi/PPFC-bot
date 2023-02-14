@@ -7,7 +7,7 @@ from telebot import TeleBot
 from buttons import *
 from change import changeCreator
 from courses import coursesList
-from groups import extractGroupId, groupsList
+from groups import extractGroupId, extractGroupNumber, groupsList
 from disciplines import disciplinesList
 from common.Constants import Constants
 from groups import groupsList
@@ -187,14 +187,23 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.HELP.value:
         if checkRegistration(message, headers):
-            
+
+            data = ""
+
+            userData = getUserId(getUserById(userId, headers))
+            if userData.isStudent == True:
+                data = "Студент: " + str(extractGroupNumber(getGroupById(headers, userData.id))) + " група"
+            if userData.isStudent == False:
+                data = "Викладач: " + str(extractTeacherName(getTeacherById(headers, userData.id)))
             helpInstruction = 'Вітаємо у боті для ВСП ППФК НТУ "ХПІ"\n'
             helpInstruction += "\n"
             helpInstruction += "Для перезавантаження бота використайте команду /start\n\n"
             helpInstruction += "Для зміни ваших даних використайте команду /change\n"
             helpInstruction += "\n"
             helpInstruction += "Також ви можете переглянути усі додаткові функції натиснувши на відповідну кнопку у меню\n"
-            helpInstruction += "Для скарг та пропозицій приєднуйтесь до чату: https://t.me/PPFC_BOT_Support"
+            helpInstruction += "Для скарг та пропозицій приєднуйтесь до чату: https://t.me/PPFC_BOT_Support\n"
+            helpInstruction += "\n"
+            helpInstruction += "Ваші реєстраційні дані: {}".format(data) 
 
             markup = botMarkup.mainMenuMarkup()
             print("Button Help")
@@ -324,7 +333,7 @@ def finalGroupSearch(message, headers, par):
         returnToMainMenu(message)
     else:
         par = message.text
-        groupData = getGroupIdForUse(headers, par)
+        groupData = getGroupByNumber(headers, par)
         groupId = extractGroupId(groupData)
         print("Find by group: done")
 
@@ -431,12 +440,12 @@ def getRegTeacherId(message, headers):
     markup = botMarkup.mainMenuMarkup()
     userData = getUserId(getUserById(userId, headers))
 
-    tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс викладача {}".format(userData.id), reply_markup=markup)
+    tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, перевірити правильність можна у вкладці 'Допомога'", reply_markup=markup)
 
 
 def getRegGroupId(message, headers):
     par = message.text
-    groupData = getGroupIdForUse(headers, par)
+    groupData = getGroupByNumber(headers, par)
     groupId = extractGroupId(groupData)
 
     print("Register as student: done")
@@ -451,7 +460,7 @@ def getRegGroupId(message, headers):
     markup = botMarkup.mainMenuMarkup()
     userData = getUserId(getUserById(userId, headers))
             
-    tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, індекс групи {}".format(userData.id), reply_markup=markup)
+    tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися,, перевірити правильність можна у вкладці 'Допомога'", reply_markup=markup)
 
 
 

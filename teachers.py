@@ -33,3 +33,10 @@ def extractTeacherId(jsonStr):
         teacher = Teacher(teacherDict)
         teacherId = teacher.id
     return teacherId
+
+def extractTeacherName(jsonStr):
+    teacherDict = json.loads(jsonStr)
+    teacherName = teacherDict["firstName"]
+    teacherSurname = teacherDict["lastName"]
+    teacher = teacherName + " " + teacherSurname
+    return teacher

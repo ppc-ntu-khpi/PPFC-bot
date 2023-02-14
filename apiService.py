@@ -58,6 +58,7 @@ def groupByCourse(headers, par):
     url = baseLink + '/group?courseId='+ str(par)
     x = requests.get(url, headers = headers)
     groupsFromCourseDict = x.text
+
     return groupsFromCourseDict
     
 def teacherByDiscipline(headers, par):
@@ -80,12 +81,26 @@ def getTeacherIdForUse(headers, par):
     
     return teacher
 
-def getGroupIdForUse(headers, par):
+def getGroupByNumber(headers, par):
     url = baseLink + '/group?groupNumber='+ par
     x = requests.get(url, headers = headers)
     group = x.text
 
     return group
+    
+def getGroupById(headers, par):
+    url = baseLink + '/group/'+ str(par)
+    x = requests.get(url, headers = headers)
+    group = x.text
+
+    return group
+
+def getTeacherById(headers, par):
+    url = baseLink + '/teacher/'+ str(par)
+    x = requests.get(url, headers = headers)
+    teacher = x.text
+
+    return teacher
 
 def getScheduleByGroup(headers, par):
     url = baseLink + '/schedule?groupId='+ str(par)
