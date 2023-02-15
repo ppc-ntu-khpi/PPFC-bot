@@ -1,5 +1,4 @@
 import datetime
-from pytz import timezone
 from threading import Thread
 from time import sleep
 from tokenize import group
@@ -7,13 +6,13 @@ from telebot import TeleBot
 from buttons import *
 from change import changeCreator
 from courses import coursesList
-from groups import extractGroupId, extractGroupNumber, groupsList
+from groups import *
 from disciplines import disciplinesList
 from common.Constants import Constants
 from groups import groupsList
 import markup as botMarkup
 from apiService import *
-from schedule import formatDayToNumber, scheduleCreator
+from schedule import *
 from teachers import *
 from users import *
 import sched, time
@@ -192,9 +191,9 @@ def messageListener(message):
 
             userData = getUserId(getUserById(userId, headers))
             if userData.isStudent == True:
-                data = "Студент: " + str(extractGroupNumber(getGroupById(headers, userData.id))) + " група"
+                data = "Студент, " + str(extractGroupNumber(getGroupById(headers, userData.id))) + " група"
             if userData.isStudent == False:
-                data = "Викладач: " + str(extractTeacherName(getTeacherById(headers, userData.id)))
+                data = "Викладач, " + str(extractTeacherName(getTeacherById(headers, userData.id)))
             helpInstruction = 'Вітаємо у боті для ВСП ППФК НТУ "ХПІ"\n'
             helpInstruction += "\n"
             helpInstruction += "Для перезавантаження бота використайте команду /start\n\n"
@@ -306,7 +305,7 @@ def scheduleByDay(message, headers):
         markup = botMarkup.mainMenuMarkup()
         scheduleForm = scheduleCreator(schedule)
         if scheduleForm == " ":
-                scheduleForm = "Розклад відсутній"
+                scheduleForm = "Розклад на цей день відсутній"
         tbot.send_message(chat_id=message.chat.id, text= scheduleForm, reply_markup=markup)
 
 
@@ -325,6 +324,8 @@ def finalTeacherSearch(message, headers, par):
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByTeacher(headers,par)
         formatedSchedule = scheduleCreator(schedule)
+        if formatedSchedule == " ":
+                formatedSchedule = "Розклад для цього викладача відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
     
 
@@ -342,6 +343,8 @@ def finalGroupSearch(message, headers, par):
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByGroup(headers,par)
         formatedSchedule = scheduleCreator(schedule)
+        if formatedSchedule == " ":
+                formatedSchedule = "Розклад для цієї групи відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
 
 def showGroups(message, headers):
