@@ -106,7 +106,7 @@ def getScheduleByGroup(headers, par):
     url = baseLink + '/schedule?groupId='+ str(par)
     x = requests.get(url, headers = headers)
     scheduleGroup = json.loads(x.text)
-    sorted_data = sorted(scheduleGroup, key=lambda x: (x['dayNumber'], x['lessonNumber']))
+    sorted_data = sorted(scheduleGroup, key=lambda x: (x['dayNumber'], x['lessonNumber'], not x['isNumerator']))
 
     schedule = json.dumps(sorted_data)
     return schedule
@@ -115,7 +115,7 @@ def getScheduleByTeacher(headers, par):
     url = baseLink + '/schedule?teacherId='+ str(par)
     x = requests.get(url, headers = headers)
     scheduleTeacher = json.loads(x.text)
-    sorted_data = sorted(scheduleTeacher, key=lambda x: (x['dayNumber'], x['lessonNumber']))
+    sorted_data = sorted(scheduleTeacher, key=lambda x: (x['dayNumber'], x['lessonNumber'], not x['isNumerator']))
 
     schedule = json.dumps(sorted_data)
     return schedule

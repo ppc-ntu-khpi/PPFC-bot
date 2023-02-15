@@ -24,9 +24,10 @@ class Classroom:
         self.id = jsonDict["id"]
         self.name = jsonDict["name"]
 
-def scheduleCreator(jsonStr):
-    scheduleDictList = json.loads(jsonStr)
+def scheduleCreator(dict, state):
+    scheduleDictList = json.loads(dict)
     schedules = {}
+
     for scheduleDict in scheduleDictList:
         schedule = Schedule(scheduleDict)
         dayNumber = schedule.dayNumber
@@ -35,30 +36,55 @@ def scheduleCreator(jsonStr):
         group = schedule.group.number
         teacher = schedule.teacher.firstName + " " + schedule.teacher.lastName 
         classroom = schedule.classroom.name
+        isNumerator = schedule.isNumerator
 
         if dayNumber not in schedules:
-            schedules[dayNumber] = []
+            schedules[dayNumber] = {}
 
-        schedules[dayNumber].append((lessonNumber, subject, group, teacher, classroom))
+        schedules[dayNumber].setdefault(lessonNumber, set()).add((lessonNumber, subject, group, teacher, classroom, isNumerator))
+
     scheduleForm = " "
-    for dayNumber, schedule in schedules.items():
-        dayName = formatNumberToDay(dayNumber)
+    for dayNumber, scheduleItem in schedules.items():
+        if state != None:
+            dayName = formatNumberToDay(dayNumber) + " " + formatIsNumerator(state)
+        else:
+            dayName = formatNumberToDay(dayNumber)
+
         scheduleForm += dayName + "\n"
-        for lesson in schedule:
-            scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + "ауд.\n"
+
+        for lessons in scheduleItem.values():
+            lessons = list(lessons)
+            lessons.sort(reverse=True, key = lambda d: d[5])
+
+            for lesson in lessons:
+                if state != None and len(lessons)>1:
+                    if lesson[5] != state:
+                        continue
+
+                ending = " ауд."
+                if str(lesson[4]) == "зал":
+                    ending = ""
+
+                if len(lessons) > 1 and state == None:
+                    ending += " " + formatIsNumerator(lesson[5])
+
+                ending += "\n"
+
+                scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + ending
+
     return scheduleForm
 
 def formatNumberToDay(dayNumber):
     if dayNumber == 1:
         dayName = "Понеділок:"
     if dayNumber == 2:
-        dayName = "Вівторок:"
+        dayName = "\nВівторок:"
     if dayNumber == 3:
-        dayName = "Середа:"
+        dayName = "\nСереда:"
     if dayNumber == 4:
-        dayName = "Четвер:"
+        dayName = "\nЧетвер:"
     if dayNumber == 5:
-        dayName = "П'ятниця:"
+        dayName = "\nП'ятниця:"
     return dayName
 
 def formatDayToNumber(message):
@@ -74,3 +100,11 @@ def formatDayToNumber(message):
     if message.text == "П'ятниця":
         dayNumber = 5
     return dayNumber
+
+def formatIsNumerator(bool):
+    state = ""
+    if bool == True:
+        state = "(Чисельник) 🔵"
+    if bool == False:
+        state = "(Знаменник) 🟡"
+    return state

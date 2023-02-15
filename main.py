@@ -18,6 +18,8 @@ from users import *
 import sched, time
 import os
 
+
+
 #--------------------- Date Control -------------------------------
 def dayToday():
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=2)
@@ -32,6 +34,19 @@ tomorrow = dayTomorrow()
 
 print("Today: "+str(today.strftime("%Y-%m-%d")))
 print("Next day: "+str(tomorrow.strftime("%Y-%m-%d")))
+
+
+# ----------------------------Chiselnik/Znamenik---------------------
+def isCurrentWeekNumerator():
+    dateNow = datetime.datetime.utcnow().replace(minute = 0, second = 0) + datetime.timedelta(hours = 2)
+
+    dateSeptember = dateNow.replace(day=1, month=9)
+    if dateNow.month < 9:
+        dateSeptember -= datetime.timedelta(days=365.24)
+
+    daysDifference = (dateNow - dateSeptember).days 
+
+    return not bool(daysDifference / 7 % 2)
 
 #----------------------- Message Control --------------------------
 tag: str = "BOT"
@@ -100,7 +115,7 @@ def messageListener(message):
             schedule = getScheduleForRegUser(headers, todayDate, userData)
                 
             print("Schedule for today")
-            scheduleForm = scheduleCreator(schedule)
+            scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator())
             if scheduleForm == " ":
                 scheduleForm = "Розклад відсутній"
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
@@ -115,7 +130,7 @@ def messageListener(message):
             schedule = getScheduleForRegUser(headers, tomorrowDate, userData)
                 
             print("Schedule for tomorrow")
-            scheduleForm = scheduleCreator(schedule)
+            scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator())
             if scheduleForm == " ":
                 scheduleForm = "Розклад відсутній"
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
@@ -303,7 +318,7 @@ def scheduleByDay(message, headers):
         print("Find by date: done")
         
         markup = botMarkup.mainMenuMarkup()
-        scheduleForm = scheduleCreator(schedule)
+        scheduleForm = scheduleCreator(schedule, None)
         if scheduleForm == " ":
                 scheduleForm = "Розклад на цей день відсутній"
         tbot.send_message(chat_id=message.chat.id, text= scheduleForm, reply_markup=markup)
@@ -323,7 +338,7 @@ def finalTeacherSearch(message, headers, par):
 
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByTeacher(headers,par)
-        formatedSchedule = scheduleCreator(schedule)
+        formatedSchedule = scheduleCreator(schedule, None)
         if formatedSchedule == " ":
                 formatedSchedule = "Розклад для цього викладача відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
@@ -342,7 +357,7 @@ def finalGroupSearch(message, headers, par):
 
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByGroup(headers,par)
-        formatedSchedule = scheduleCreator(schedule)
+        formatedSchedule = scheduleCreator(schedule, None)
         if formatedSchedule == " ":
                 formatedSchedule = "Розклад для цієї групи відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
@@ -484,16 +499,16 @@ def recreateHeaders(scheduler):
 
     global headers
 
-    scheduler.enter(3300, 1, recreateHeaders, (scheduler,))
+    scheduler.enter(3300, 1, recreateHeaders, (scheduler))
     headers = authenticate()
     
-def delay():
+def delayHeaders():
     my_scheduler = sched.scheduler(time.time, time.sleep)
     my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler))
     my_scheduler.run()
 
 def main():
-    thread = Thread(target = delay)
+    thread = Thread(target = delayHeaders)
     thread.start()
     
 

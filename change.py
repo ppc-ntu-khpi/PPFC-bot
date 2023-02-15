@@ -45,5 +45,8 @@ def changeCreator(jsonStr):
     for date, change in changes.items():
         changeForm += "Зміни на " + str(date) + "\n"
         for lesson in change:
-            changeForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + "ауд.\n"
+            if str(lesson[4]) == "зал":
+                changeForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + "\n"
+            else:
+                changeForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + " ауд.\n"
     return changeForm
