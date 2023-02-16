@@ -28,7 +28,7 @@ class AdditionalFuncButtons(str, Enum):
     EDU_PROCESS = "Графік НП",
     COLLEGE_MAP = "Мапа коледжу",
     WORK_SATURDAYS = "Робочі суботи",
-    CHANGE_DATA = "Змінити групу"
+    CHANGE_DATA = "Змінити реєстраційні дані"
 
 class CollegeFloors(str, Enum):
     FIRST_FLOOR = "I",

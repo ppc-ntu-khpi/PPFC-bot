@@ -1,4 +1,5 @@
 from telebot import types
+from apiService import checkUser
 
 from buttons import *
 from utils import chunks
@@ -46,13 +47,16 @@ def findByDayWMarkup():
 
     return markup
 
-def registerMarkup():
+def registerMarkup(userId, headers):
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
 
     button1 = types.KeyboardButton(Register.STUDENT.value)
     button2 = types.KeyboardButton(Register.TEACHER.value)
 
     markup.row(button1, button2)
+    if checkUser(userId, headers):
+        mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+        markup.row(mainMenu)
 
     return markup
 
@@ -76,7 +80,7 @@ def doubleMarkup(Names):
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
     for row in rows:
         buttonsRow = []
-        
+            
         for button in row:
             buttonsRow.append(types.KeyboardButton(button))
 
@@ -99,7 +103,10 @@ def tripleMarkup(Names):
     markup.row(buttonMain)
     return markup
 
-def tripleRegMarkup(Names):
+
+
+
+def tripleRegMarkup(Names, userId, headers):
     rows = chunks(Names, 3)
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
     for row in rows:
@@ -109,9 +116,12 @@ def tripleRegMarkup(Names):
             buttonsRow.append(types.KeyboardButton(button))
 
         markup.row(*buttonsRow)
+    if checkUser(userId, headers):
+        mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+        markup.row(mainMenu)
     return markup
 
-def doubleRegMarkup(Names):
+def doubleRegMarkup(Names, userId, headers):
     rows = chunks(Names, 2)
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
     for row in rows:
@@ -121,9 +131,12 @@ def doubleRegMarkup(Names):
             buttonsRow.append(types.KeyboardButton(button))
 
         markup.row(*buttonsRow)
+    if checkUser(userId, headers):
+        mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+        markup.row(mainMenu)
     return markup
 
-def fiveRegMarkup(Names):
+def fiveRegMarkup(Names, userId, headers):
     rows = chunks(Names, 5)
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
     for row in rows:
@@ -133,7 +146,13 @@ def fiveRegMarkup(Names):
             buttonsRow.append(types.KeyboardButton(button))
 
         markup.row(*buttonsRow)
+    if checkUser(userId, headers):
+        mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+        markup.row(mainMenu)
     return markup
+
+
+
 
 def additionalFuncMarkup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
