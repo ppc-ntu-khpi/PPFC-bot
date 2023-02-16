@@ -44,9 +44,9 @@ def isCurrentWeekNumerator():
     if dateNow.month < 9:
         dateSeptember -= datetime.timedelta(days=365.24)
 
-    daysDifference = (dateNow - dateSeptember).days 
+    daysDifference = (dateNow - dateSeptember).days
 
-    return not bool(daysDifference / 7 % 2)
+    return not bool(int(daysDifference / 7) % 2) 
 
 #----------------------- Message Control --------------------------
 tag: str = "BOT"

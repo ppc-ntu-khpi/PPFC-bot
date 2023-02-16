@@ -6,9 +6,9 @@ class MainMenuButtons(str, Enum):
     SCHEDULE_TOMORROW = "Розклад на завтра 📋",
     CHANGES_TODAY = "Зміни на сьогодні ⚠️",
     CHANGES_TOMORROW = "Зміни на наступний день ⚠️",
-    FIND_BY_TEACHER = "Пошук по викладачу",
+    FIND_BY_TEACHER = "Пошук по викладачу 👩🏼‍🏫",
     FIND_BY_GROUP = "Пошук по групі 🔎",
-    FIND_BY_DAY = "Пошук по дню тижня",
+    FIND_BY_DAY = "Пошук по дню тижня 📅",
     ADDITIONAL_FUNCTIONS = "Дод. функції ☕️",
     HELP = "Допомога 🏥"
 

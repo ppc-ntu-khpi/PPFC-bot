@@ -62,7 +62,7 @@ def scheduleCreator(dict, state):
                         continue
 
                 ending = " ауд."
-                if str(lesson[4]) == "зал":
+                if str(lesson[4]) == "Зал":
                     ending = ""
 
                 if len(lessons) > 1 and state == None:
