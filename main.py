@@ -513,13 +513,14 @@ def showCollegeFloor(message):
 def recreateHeaders(scheduler): 
 
     global headers
-
-    scheduler.enter(3300, 1, recreateHeaders, (scheduler))
+    #Don't delete comma after scheduler
+    scheduler.enter(3300, 1, recreateHeaders, (scheduler, ))
     headers = authenticate()
     
 def delayHeaders():
     my_scheduler = sched.scheduler(time.time, time.sleep)
-    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler))
+    #Don't delete comma after scheduler
+    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler, ))
     my_scheduler.run()
 
 def main():
