@@ -8,7 +8,7 @@ from change import changeCreator
 from courses import coursesList
 from groups import *
 from disciplines import disciplinesList
-from common.Constants import Constants
+from Constants import Constants
 from groups import groupsList
 import markup as botMarkup
 from apiService import *
@@ -513,14 +513,13 @@ def showCollegeFloor(message):
 def recreateHeaders(scheduler): 
 
     global headers
-    #Don't delete comma after scheduler
-    scheduler.enter(3300, 1, recreateHeaders, (scheduler, ))
+
+    scheduler.enter(3300, 1, recreateHeaders, (scheduler,))
     headers = authenticate()
     
 def delayHeaders():
     my_scheduler = sched.scheduler(time.time, time.sleep)
-    #Don't delete comma after scheduler
-    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler, ))
+    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler,))
     my_scheduler.run()
 
 def main():
