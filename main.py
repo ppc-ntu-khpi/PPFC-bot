@@ -61,6 +61,7 @@ disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
 @tbot.message_handler(commands=["start"])
 def start(message):
 
+    recreateToken(message,headers)
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
@@ -76,7 +77,8 @@ def start(message):
 
 @tbot.message_handler(commands=["change"])
 def changeData(message):
-
+    
+    recreateToken(message,headers)
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.registerMarkup(userId, headers)
@@ -109,6 +111,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.SCHEDULE_TODAY.value:
         if checkRegistration(message,headers):
+            recreateToken(message,headers)
             todayDate = dayToday().weekday() + 1
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
@@ -122,6 +125,7 @@ def messageListener(message):
         
     if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
         if checkRegistration(message,headers):
+            recreateToken(message,headers)
             tomorrowDate = dayTomorrow().weekday() + 1
             if tomorrowDate > 5:
                 tomorrowDate = 1
@@ -138,6 +142,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.CHANGES_TODAY.value:
         if checkRegistration(message,headers):
+            recreateToken(message,headers)
             todayDate = dayToday().strftime("%Y-%m-%d")
             print(todayDate)
             userId = message.from_user.id
@@ -153,6 +158,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
         if checkRegistration(message,headers):
+            recreateToken(message,headers)
             tomorrowDate = dayTomorrow().strftime("%Y-%m-%d")
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
@@ -167,6 +173,7 @@ def messageListener(message):
         
     if message.text ==  MainMenuButtons.FIND_BY_TEACHER.value:
         if checkRegistration(message,headers):
+            recreateToken(message,headers)
             userId= message.from_user.id
 
             disciplines = disciplinesApi(headers)
@@ -180,6 +187,7 @@ def messageListener(message):
             
     if message.text ==  MainMenuButtons.FIND_BY_GROUP.value:
         if checkRegistration(message,headers):
+            recreateToken(message,headers)
             userId = message.from_user.id
 
             courses = coursesApi(headers)
@@ -193,6 +201,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.FIND_BY_DAY.value:
         if checkRegistration(message, headers):
+            recreateToken(message,headers)
             markup = botMarkup.findByDayWMarkup()
             print("Find by day: day")
             tbot.send_message(chat_id=message.chat.id, text="Оберіть день тижня", reply_markup=markup)
@@ -201,6 +210,7 @@ def messageListener(message):
 
     if message.text == MainMenuButtons.HELP.value:
         if checkRegistration(message, headers):
+            recreateToken(message,headers)
 
             data = ""
             
@@ -224,6 +234,7 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text=helpInstruction, reply_markup=markup)
 
     if message.text == MainMenuButtons.ADDITIONAL_FUNCTIONS.value:
+        recreateToken(message,headers)
         if checkRegistration(message,headers):
             markup = botMarkup.additionalFuncMarkup()
     
@@ -231,6 +242,7 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text= "Доступні додаткові функції", reply_markup=markup)
 
     if message.text == AdditionalFuncButtons.CHANGE_DATA:
+        recreateToken(message,headers)
         if checkRegistration(message,headers):
             markup = botMarkup.mainMenuMarkup()
     
@@ -238,12 +250,14 @@ def messageListener(message):
             changeData(message)
 
     if message.text == AdditionalFuncButtons.WORK_SATURDAYS:
+        recreateToken(message,headers)
         if checkRegistration(message,headers):
             
             print("Working saturdays")
             tbot.send_message(chat_id=message.chat.id, text= "Відсутні")
 
     if message.text == AdditionalFuncButtons.EDU_PROCESS:
+        recreateToken(message,headers)
         if checkRegistration(message,headers):
 
             text = ""
@@ -254,6 +268,7 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text= text)
         
     if message.text == AdditionalFuncButtons.COLLEGE_MAP:
+        recreateToken(message,headers)
         if checkRegistration(message,headers):
             markup = botMarkup.collegeMapMarkup()
 
@@ -262,6 +277,7 @@ def messageListener(message):
             tbot.register_next_step_handler(message, showCollegeFloor)
 
     if message.text == AdditionalFuncButtons.RINGS_SCHEDULE:
+        recreateToken(message,headers)
         if checkRegistration(message,headers):
 
             markup = botMarkup.mainMenuMarkup()
@@ -304,6 +320,12 @@ def returnToMainMenu(message):
     print("Main menu")
     tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
+def recreateToken(message, headers):
+    userId = message.from_user.id
+    if not checkUser(userId, headers):
+        headers = authenticate()
+    return
+    
 #--------------------------- Main menu Functions (Finders) -----------------------------
 def scheduleByDay(message, headers):
     if MainMenuCheck(message):
@@ -510,22 +532,7 @@ def showCollegeFloor(message):
 
 
 #----------------------------Main Thread-------------------------------
-def recreateHeaders(scheduler): 
-
-    global headers
-
-    scheduler.enter(3300, 1, recreateHeaders, (scheduler,))
-    headers = authenticate()
-    
-def delayHeaders():
-    my_scheduler = sched.scheduler(time.time, time.sleep)
-    my_scheduler.enter(3300, 1, recreateHeaders, (my_scheduler,))
-    my_scheduler.run()
-
-def main():
-    thread = Thread(target = delayHeaders)
-    thread.start()
-    
+def main():    
 
     tbot.infinity_polling()
     

@@ -6,7 +6,8 @@ import os
 username = os.environ['USERNAME']
 password = os.environ['PASSWORD']
 
-baseLink = 'http://ppfc.eu-central-1.elasticbeanstalk.com/api'
+baseLink = os.environ['BASE_LINK']
+
 def authenticate():
     url = baseLink + '/authenticate'
     myobj = {
