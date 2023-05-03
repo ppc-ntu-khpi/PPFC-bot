@@ -60,8 +60,7 @@ disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
 
 @tbot.message_handler(commands=["start"])
 def start(message):
-
-    recreateToken(message,headers)
+    recreateToken(message, headers)
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
@@ -77,8 +76,7 @@ def start(message):
 
 @tbot.message_handler(commands=["change"])
 def changeData(message):
-    
-    recreateToken(message,headers)
+    recreateToken(message, headers)
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.registerMarkup(userId, headers)
@@ -97,7 +95,7 @@ def messageListener(message):
     global groupsButtonNames
     global disciplinesButtonsNames
     global teacherButtonNames
-
+    global headers
     userId = message.from_user.id
 
     if message.text ==  Register.TEACHER.value:
@@ -110,8 +108,8 @@ def messageListener(message):
         tbot.register_next_step_handler(message, getGroupsNumbers, headers)
 
     if message.text == MainMenuButtons.SCHEDULE_TODAY.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
-            recreateToken(message,headers)
             todayDate = dayToday().weekday() + 1
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
@@ -124,8 +122,8 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
         
     if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
-            recreateToken(message,headers)
             tomorrowDate = dayTomorrow().weekday() + 1
             if tomorrowDate > 5:
                 tomorrowDate = 1
@@ -141,10 +139,9 @@ def messageListener(message):
 
 
     if message.text == MainMenuButtons.CHANGES_TODAY.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
-            recreateToken(message,headers)
             todayDate = dayToday().strftime("%Y-%m-%d")
-            print(todayDate)
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             change = getChangesForRegUser(headers, todayDate, userData)
@@ -157,8 +154,8 @@ def messageListener(message):
 
 
     if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
-            recreateToken(message,headers)
             tomorrowDate = dayTomorrow().strftime("%Y-%m-%d")
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
@@ -172,8 +169,8 @@ def messageListener(message):
         
         
     if message.text ==  MainMenuButtons.FIND_BY_TEACHER.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
-            recreateToken(message,headers)
             userId= message.from_user.id
 
             disciplines = disciplinesApi(headers)
@@ -186,8 +183,8 @@ def messageListener(message):
 
             
     if message.text ==  MainMenuButtons.FIND_BY_GROUP.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
-            recreateToken(message,headers)
             userId = message.from_user.id
 
             courses = coursesApi(headers)
@@ -200,8 +197,8 @@ def messageListener(message):
 
 
     if message.text == MainMenuButtons.FIND_BY_DAY.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message, headers):
-            recreateToken(message,headers)
             markup = botMarkup.findByDayWMarkup()
             print("Find by day: day")
             tbot.send_message(chat_id=message.chat.id, text="Оберіть день тижня", reply_markup=markup)
@@ -209,8 +206,8 @@ def messageListener(message):
 
 
     if message.text == MainMenuButtons.HELP.value:
+        headers = recreateToken(message, headers)
         if checkRegistration(message, headers):
-            recreateToken(message,headers)
 
             data = ""
             
@@ -234,7 +231,7 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text=helpInstruction, reply_markup=markup)
 
     if message.text == MainMenuButtons.ADDITIONAL_FUNCTIONS.value:
-        recreateToken(message,headers)
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
             markup = botMarkup.additionalFuncMarkup()
     
@@ -242,7 +239,7 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text= "Доступні додаткові функції", reply_markup=markup)
 
     if message.text == AdditionalFuncButtons.CHANGE_DATA:
-        recreateToken(message,headers)
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
             markup = botMarkup.mainMenuMarkup()
     
@@ -250,14 +247,14 @@ def messageListener(message):
             changeData(message)
 
     if message.text == AdditionalFuncButtons.WORK_SATURDAYS:
-        recreateToken(message,headers)
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
             
             print("Working saturdays")
             tbot.send_message(chat_id=message.chat.id, text= "Відсутні")
 
     if message.text == AdditionalFuncButtons.EDU_PROCESS:
-        recreateToken(message,headers)
+        recreateToken(message, headers)
         if checkRegistration(message,headers):
 
             text = ""
@@ -268,7 +265,7 @@ def messageListener(message):
             tbot.send_message(chat_id=message.chat.id, text= text)
         
     if message.text == AdditionalFuncButtons.COLLEGE_MAP:
-        recreateToken(message,headers)
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
             markup = botMarkup.collegeMapMarkup()
 
@@ -277,7 +274,7 @@ def messageListener(message):
             tbot.register_next_step_handler(message, showCollegeFloor)
 
     if message.text == AdditionalFuncButtons.RINGS_SCHEDULE:
-        recreateToken(message,headers)
+        headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
 
             markup = botMarkup.mainMenuMarkup()
@@ -290,6 +287,7 @@ def messageListener(message):
 
 
     if MainMenuCheck(message):
+        headers = recreateToken(message, headers)
         returnToMainMenu(message)
         return
 
@@ -300,6 +298,7 @@ def messageListener(message):
 
 #------------------------------ Main check functions ---------------------------------
 def checkRegistration(message, headers):
+    headers = recreateToken(message, headers)
     userId = message.from_user.id
     if not checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
@@ -321,13 +320,12 @@ def returnToMainMenu(message):
     tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
 def recreateToken(message, headers):
-    userId = message.from_user.id
-    if not checkUser(userId, headers):
+    if not checkToken(headers):
         headers = authenticate()
-    return
-    
+    return headers 
 #--------------------------- Main menu Functions (Finders) -----------------------------
 def scheduleByDay(message, headers):
+    headers = recreateToken(message, headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -347,6 +345,7 @@ def scheduleByDay(message, headers):
 
 
 def finalTeacherSearch(message, headers, par):
+    headers = recreateToken(message, headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -367,6 +366,7 @@ def finalTeacherSearch(message, headers, par):
     
 
 def finalGroupSearch(message, headers, par):
+    headers = recreateToken(message, headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -385,6 +385,7 @@ def finalGroupSearch(message, headers, par):
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
 
 def showGroups(message, headers):
+    headers = recreateToken(message, headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -399,6 +400,7 @@ def showGroups(message, headers):
         tbot.register_next_step_handler(message, finalGroupSearch, headers, par)
 
 def showTeachers(message, headers):
+    headers = recreateToken(message, headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -416,7 +418,7 @@ def showTeachers(message, headers):
 
 #------------------------------------ Registration Block ------------------------------------------
 def registerAsTeacher(headers,message):
-    
+ 
     disciplines = disciplinesApi(headers)
     disciplinesButtonsNames = disciplinesList(disciplines)
     print("Register as teacher: discipline")
@@ -440,6 +442,8 @@ def registerAsStudent(headers,message):
 
 
 def getTeachersNames(message, headers):
+    headers = recreateToken(message, headers)
+
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -456,6 +460,8 @@ def getTeachersNames(message, headers):
     
     
 def getGroupsNumbers(message, headers):
+    headers = recreateToken(message, headers)
+
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -473,6 +479,8 @@ def getGroupsNumbers(message, headers):
 
 
 def getRegTeacherId(message, headers):
+    headers = recreateToken(message, headers)
+
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -496,6 +504,8 @@ def getRegTeacherId(message, headers):
 
 
 def getRegGroupId(message, headers):
+    headers = recreateToken(message, headers)
+    
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -532,7 +542,8 @@ def showCollegeFloor(message):
 
 
 #----------------------------Main Thread-------------------------------
-def main():    
+def main():
+    
 
     tbot.infinity_polling()
     

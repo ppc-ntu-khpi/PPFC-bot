@@ -30,6 +30,13 @@ def checkUser(userID, headers):
         return True
     return False
 
+def checkToken(headers):
+    url = baseLink + '/course'
+    x = requests.get(url, headers = headers)
+    
+    if x.status_code == 200:
+        return True
+    return False
 
 def register(ParamString, headers, userID):
 
