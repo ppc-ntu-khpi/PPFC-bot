@@ -116,11 +116,14 @@ def messageListener(message):
             schedule = getScheduleForRegUser(headers, todayDate, userData)
                 
             print("Schedule for today")
-            scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator())
+
+            user = getUserId(getUserById(userId, headers))
+            scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator(), user.isStudent)
             if scheduleForm == " ":
                 scheduleForm = "Розклад відсутній"
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
         
+
     if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
         headers = recreateToken(message, headers)
         if checkRegistration(message,headers):
@@ -132,7 +135,9 @@ def messageListener(message):
             schedule = getScheduleForRegUser(headers, tomorrowDate, userData)
                 
             print("Schedule for tomorrow")
-            scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator())
+
+            user = getUserId(getUserById(userId, headers))
+            scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator(), user.isStudent)
             if scheduleForm == " ":
                 scheduleForm = "Розклад відсутній"
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm)
@@ -147,6 +152,7 @@ def messageListener(message):
             change = getChangesForRegUser(headers, todayDate, userData)
 
             print("Changes for today")
+            
             changes = changeCreator(change)
             if changes == " ":
                     changes = "Змін немає"
@@ -178,7 +184,7 @@ def messageListener(message):
             print("Find by teacher: discipline")
                     
             markup = botMarkup.tripleMarkup(disciplinesButtonsNames)
-            tbot.send_message(chat_id=message.chat.id, text= "Виберіть дисципліну викладача:", reply_markup=markup)
+            tbot.send_message(chat_id=message.chat.id, text= "Оберіть циклову комісію:", reply_markup=markup)
             tbot.register_next_step_handler(message, showTeachers, headers)
 
             
@@ -216,7 +222,7 @@ def messageListener(message):
                 data = "Студент, " + str(extractGroupNumber(getGroupById(headers, userData.id))) + " група"
             if userData.isStudent == False:
                 data = "Викладач, " + str(extractTeacherName(getTeacherById(headers, userData.id)))
-            helpInstruction = 'Вітаємо у боті для ВСП ППФК НТУ "ХПІ"\n'
+            helpInstruction = 'Вітаємо у боті для ВСП "ППФК НТУ "ХПІ"\n'
             helpInstruction += "\n"
             helpInstruction += "Для перезавантаження бота використайте команду /start\n\n"
             helpInstruction += "Для зміни ваших даних використайте команду /change\n"
@@ -338,7 +344,8 @@ def scheduleByDay(message, headers):
         print("Find by date: done")
         
         markup = botMarkup.mainMenuMarkup()
-        scheduleForm = scheduleCreator(schedule, None)
+        user = getUserId(getUserById(userId, headers))
+        scheduleForm = scheduleCreator(schedule, None, user.isStudent)
         if scheduleForm == " ":
                 scheduleForm = "Розклад на цей день відсутній"
         tbot.send_message(chat_id=message.chat.id, text= scheduleForm, reply_markup=markup)
@@ -359,7 +366,8 @@ def finalTeacherSearch(message, headers, par):
 
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByTeacher(headers,par)
-        formatedSchedule = scheduleCreator(schedule, None)
+        user = False
+        formatedSchedule = scheduleCreator(schedule, None, user)
         if formatedSchedule == " ":
                 formatedSchedule = "Розклад для цього викладача відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
@@ -379,7 +387,8 @@ def finalGroupSearch(message, headers, par):
 
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByGroup(headers,par)
-        formatedSchedule = scheduleCreator(schedule, None)
+        user = True
+        formatedSchedule = scheduleCreator(schedule, None, user)
         if formatedSchedule == " ":
                 formatedSchedule = "Розклад для цієї групи відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup)
@@ -425,7 +434,7 @@ def registerAsTeacher(headers,message):
 
     userId = message.from_user.id
     markup = botMarkup.tripleRegMarkup(disciplinesButtonsNames, userId, headers)
-    tbot.send_message(chat_id=message.chat.id, text= "Виберіть вашу дисципліну:", reply_markup=markup)
+    tbot.send_message(chat_id=message.chat.id, text= "Оберіть циклову комісію:", reply_markup=markup)
 
 
 

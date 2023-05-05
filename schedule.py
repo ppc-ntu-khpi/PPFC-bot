@@ -24,10 +24,10 @@ class Classroom:
         self.id = jsonDict["id"]
         self.name = jsonDict["name"]
 
-def scheduleCreator(dict, state):
+def scheduleCreator(dict, state, userState):
     scheduleDictList = json.loads(dict)
     schedules = {}
-
+    
     for scheduleDict in scheduleDictList:
         schedule = Schedule(scheduleDict)
         dayNumber = schedule.dayNumber
@@ -55,22 +55,23 @@ def scheduleCreator(dict, state):
         for lessons in scheduleItem.values():
             lessons = list(lessons)
             lessons.sort(reverse=True, key = lambda d: d[5])
-
             for lesson in lessons:
                 if state != None and len(lessons)>1:
                     if lesson[5] != state:
                         continue
 
                 ending = " ауд."
-                if str(lesson[4]) == "Зал":
+                if str(lesson[4]) == "Зал" or str(lesson[4]) == "зал" :
                     ending = ""
 
                 if len(lessons) > 1 and state == None:
                     ending += " " + formatIsNumerator(lesson[5])
 
                 ending += "\n"
-
-                scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) + " група ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + ending
+                if userState == True:
+                    scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + ending
+                else:
+                    scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) +  " група ➡️ "  + str(lesson[4]) + ending
 
     return scheduleForm
 
