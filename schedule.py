@@ -69,28 +69,28 @@ def scheduleCreator(dict, state, userState):
 
                 ending += "\n"
                 if userState == True:
-                    scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + ending
+                    scheduleForm += "*" + str(lesson[0]) + "*. "+ str(lesson[1]) + " ➡️ " + str(lesson[3]) +  " ➡️ " + str(lesson[4]) + ending
                 else:
-                    scheduleForm += str(lesson[0]) + ". "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) +  " група ➡️ "  + str(lesson[4]) + ending
+                    scheduleForm += "*" + str(lesson[0]) + "*. "+ str(lesson[1]) + " ➡️ " + str(lesson[2]) +  " група ➡️ "  + str(lesson[4]) + ending
 
     return scheduleForm
 
 def formatNumberToDay(dayNumber):
     if dayNumber == 1:
-        dayName = "Понеділок:"
+        dayName = "*Понеділок:*"
     if dayNumber == 2:
-        dayName = "\nВівторок:"
+        dayName = "\n*Вівторок:*"
     if dayNumber == 3:
-        dayName = "\nСереда:"
+        dayName = "\n*Середа:*"
     if dayNumber == 4:
-        dayName = "\nЧетвер:"
+        dayName = "\n*Четвер:*"
     if dayNumber == 5:
-        dayName = "\nП'ятниця:"
+        dayName = "\n*П'ятниця:*"
     return dayName
 
 def formatDayToNumber(message):
     dayNumber = ""
-    if message.text == "Понеділок":
+    if message.text == "Понеділок:":
         dayNumber = 1
     if message.text == "Вівторок":
         dayNumber = 2
@@ -105,7 +105,7 @@ def formatDayToNumber(message):
 def formatIsNumerator(bool):
     state = ""
     if bool == True:
-        state = "(Чисельник) 🔵"
+        state = "*(Чисельник)* 🔵"
     if bool == False:
-        state = "(Знаменник) 🟡"
+        state = "*(Знаменник)* 🟡"
     return state

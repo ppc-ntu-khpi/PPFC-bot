@@ -25,7 +25,7 @@ def authenticate():
 
 def checkUser(userID, headers):
     url = baseLink + "/user/{}".format(userID)
-    x = requests.get(url, headers = headers)#
+    x = requests.get(url, headers = headers)
     if x.status_code == 200:
         return True
     return False

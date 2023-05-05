@@ -3,7 +3,7 @@ from enum import Enum
 class MainMenuButtons(str, Enum):
     MAIN_MENU = "Головне меню",
     SCHEDULE_TODAY = "Розклад на сьогодні 📋",
-    SCHEDULE_TOMORROW = "Розклад на завтра 📋",
+    SCHEDULE_TOMORROW = "Розклад на наступний день 📋",
     CHANGES_TODAY = "Зміни на сьогодні ⚠️",
     CHANGES_TOMORROW = "Зміни на наступний день ⚠️",
     FIND_BY_TEACHER = "Пошук по викладачу 👩🏼‍🏫",
