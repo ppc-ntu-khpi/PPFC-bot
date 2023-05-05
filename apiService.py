@@ -82,6 +82,12 @@ def getUserById(userId, headers):
         userData = x.text
     return userData
 
+def getUsers(headers):
+    url = baseLink + "/user"
+    x = requests.get(url, headers=headers)
+    users = x.text
+    return users
+
 def getTeacherIdForUse(headers, par):
     url = baseLink + '/teacher?teacherFullName='+ par
     x = requests.get(url, headers = headers)

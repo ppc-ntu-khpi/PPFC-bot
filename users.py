@@ -31,7 +31,15 @@ def getUserId(jsonStr):
             return None
             
         return UserId(teacher.id, user.isGroup)
-    
+
+def allUsersIds(jsonStr):
+    usersDictList = json.loads(jsonStr)
+    usersId = []
+    for userDict in usersDictList:
+        usersId.append(str(userDict["id"]))
+    return usersId
+
+
 def checkUserPerson(headers, userId):
     userData = getUserId(getUserById(userId, headers))
     if userData.isStudent == True:

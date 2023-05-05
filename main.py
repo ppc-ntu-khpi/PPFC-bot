@@ -71,7 +71,7 @@ def start(message):
     if checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
         print("/start: user already exists")
-        tbot.send_message(chat_id=message.chat.id, text = "Ми вас вже знаємо!", reply_markup=markup)
+        tbot.send_message(chat_id=message.chat.id, text = "Бота перезавантажено. Ми вас вже знаємо у базі, продовжуйте роботу!", reply_markup=markup)
 
     else: 
         replyMessage = "Зареєструйтеся. Оберіть хто ви:"
@@ -103,7 +103,6 @@ def messageListener(message):
     global teacherButtonNames
     global headers
     userId = message.from_user.id
-
     if message.text ==  Register.TEACHER.value:
         headers = recreateToken(headers)
         registerAsTeacher(headers, message)
@@ -119,7 +118,7 @@ def messageListener(message):
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
             todayDate = dayToday().weekday() 
-            print(todayDate)
+
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, todayDate, userData)
@@ -137,9 +136,9 @@ def messageListener(message):
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
             tomorrowDate = dayTomorrow().weekday() 
+            
             if tomorrowDate > 5:
                 tomorrowDate = 1
-            print(tomorrowDate)
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, tomorrowDate, userData)
@@ -335,10 +334,13 @@ def returnToMainMenu(message):
     print("Main menu")
     tbot.send_message(chat_id=message.chat.id, text="Повертаємося у головне меню", reply_markup=markup)
 
+
 def recreateToken(headers):
     if not checkToken(headers):
         headers = authenticate()
     return headers 
+
+
 #--------------------------- Main menu Functions (Finders) -----------------------------
 def scheduleByDay(message, headers):
     headers = recreateToken(headers)
@@ -562,8 +564,13 @@ def showCollegeFloor(message):
 
 #----------------------------Main Thread-------------------------------
 def main():
-    
+    users = getUsers(headers)
+    userIds = allUsersIds(users)
 
+    for id in userIds:
+        tbot.send_message(chat_id=id, text="Випущено нову версію бота, автоматичне перезавантаження 🔄",reply_markup=botMarkup.mainMenuMarkup())
+        
+    print("Reload messages sent")
     tbot.infinity_polling()
     
 if __name__ == "__main__":
