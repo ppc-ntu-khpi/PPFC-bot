@@ -231,7 +231,7 @@ def messageListener(message):
                 data = "Студент, " + str(extractGroupNumber(getGroupById(headers, userData.id))) + " група"
             if userData.isStudent == False:
                 data = "Викладач, " + str(extractTeacherName(getTeacherById(headers, userData.id)))
-            helpInstruction = f'Вітаємо у боті для ВСП "ППФК НТУ "ХПІ"    (v0.9.1)\n'
+            helpInstruction = f'Вітаємо у боті для ВСП "ППФК НТУ "ХПІ"    (v0.9.2)\n'
             helpInstruction += "\n"
             helpInstruction += "Для перезавантаження бота використайте команду /start\n\n"
             helpInstruction += "Для зміни ваших даних використайте команду /change\n"
