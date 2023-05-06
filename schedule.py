@@ -90,7 +90,7 @@ def formatNumberToDay(dayNumber):
 
 def formatDayToNumber(message):
     dayNumber = ""
-    if message.text == "Понеділок:":
+    if message.text == "Понеділок":
         dayNumber = 1
     if message.text == "Вівторок":
         dayNumber = 2

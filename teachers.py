@@ -27,11 +27,10 @@ def teachersIds(jsonStr):
     return teachersId
 
 def extractTeacherId(jsonStr):
-    teachersDictList = json.loads(jsonStr)
+    teacherDict = json.loads(jsonStr)
     teacherId = ""
-    for teacherDict in teachersDictList:
-        teacher = Teacher(teacherDict)
-        teacherId = teacher.id
+    teacher = Teacher(teacherDict)
+    teacherId = teacher.id
     return teacherId
 
 def extractTeacherName(jsonStr):

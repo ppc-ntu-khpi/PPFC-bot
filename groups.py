@@ -25,11 +25,10 @@ def groupsIds(jsonStr):
     return groupsId
 
 def extractGroupId(jsonStr):
-    groupsDictList = json.loads(jsonStr)
+    groupDict = json.loads(jsonStr)
     groupId = ""
-    for groupDict in groupsDictList:
-        group = Group(groupDict)
-        groupId = group.id
+    group = Group(groupDict)
+    groupId = group.id
     return groupId
 
 def extractGroupNumber(jsonStr):

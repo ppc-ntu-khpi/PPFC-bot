@@ -22,11 +22,11 @@ import os
 
 #--------------------- Date Control -------------------------------
 def dayToday():
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 1)
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 0)
     return now
 
 def dayTomorrow():
-    tomorrow = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 2)
+    tomorrow = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 1)
     return tomorrow
 
 today = dayToday()
@@ -117,7 +117,7 @@ def messageListener(message):
     if message.text == MainMenuButtons.SCHEDULE_TODAY.value:
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
-            todayDate = dayToday().weekday() 
+            todayDate = dayToday().weekday() + 1
 
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
@@ -135,8 +135,8 @@ def messageListener(message):
     if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
-            tomorrowDate = dayTomorrow().weekday() 
-            
+            tomorrowDate = dayTomorrow().weekday() + 1
+
             if tomorrowDate > 5:
                 tomorrowDate = 1
             userId = message.from_user.id
@@ -191,7 +191,7 @@ def messageListener(message):
             disciplines = disciplinesApi(headers)
             disciplinesButtonsNames = disciplinesList(disciplines)
             print("Find by teacher: discipline")
-                    
+   
             markup = botMarkup.tripleMarkup(disciplinesButtonsNames)
             tbot.send_message(chat_id=message.chat.id, text= "Оберіть циклову комісію:", reply_markup=markup)
             tbot.register_next_step_handler(message, showTeachers, headers)
@@ -231,7 +231,7 @@ def messageListener(message):
                 data = "Студент, " + str(extractGroupNumber(getGroupById(headers, userData.id))) + " група"
             if userData.isStudent == False:
                 data = "Викладач, " + str(extractTeacherName(getTeacherById(headers, userData.id)))
-            helpInstruction = f'Вітаємо у боті для ВСП "ППФК НТУ "ХПІ"    (v0.9.2)\n'
+            helpInstruction = f'Вітаємо у боті для ВСП "ППФК НТУ "ХПІ       ' + Constants.version + '\n'
             helpInstruction += "\n"
             helpInstruction += "Для перезавантаження бота використайте команду /start\n\n"
             helpInstruction += "Для зміни ваших даних використайте команду /change\n"
@@ -360,7 +360,8 @@ def scheduleByDay(message, headers):
         scheduleForm = scheduleCreator(schedule, None, user.isStudent)
         if scheduleForm == " ":
                 scheduleForm = "Розклад на цей день відсутній"
-        tbot.send_message(chat_id=message.chat.id, text= scheduleForm, reply_markup=markup, parse_mode="Markdown")
+        tbot.send_message(chat_id=message.chat.id, text= scheduleForm, parse_mode="Markdown")
+        tbot.register_next_step_handler(message, scheduleByDay, headers)
 
 
 def finalTeacherSearch(message, headers, par):
@@ -369,14 +370,14 @@ def finalTeacherSearch(message, headers, par):
         returnToMainMenu(message)
     else:
         par = message.text
-
         teacherData = getTeacherIdForUse(headers, par)
+        print(teacherData)
         teacherId = extractTeacherId(teacherData)
         print("Find by teacher: done")
 
         par = teacherId
-
         markup = botMarkup.mainMenuMarkup()
+        
         schedule = getScheduleByTeacher(headers,par)
         user = False
         formatedSchedule = scheduleCreator(schedule, None, user)
@@ -567,8 +568,9 @@ def main():
     users = getUsers(headers)
     userIds = allUsersIds(users)
 
-    for id in userIds:
-        tbot.send_message(chat_id=id, text="Випущено нову версію бота, автоматичне перезавантаження 🔄",reply_markup=botMarkup.mainMenuMarkup())
+    if Constants.restart:
+        for id in userIds:
+            tbot.send_message(chat_id=id, text="Випущено нову версію бота, автоматичне перезавантаження 🔄",reply_markup=botMarkup.mainMenuMarkup())
         
     print("Reload messages sent")
     tbot.infinity_polling()

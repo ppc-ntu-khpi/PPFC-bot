@@ -3,10 +3,12 @@ import json
 import datetime
 import os
 
-username = os.environ['USERNAME']
-password = os.environ['PASSWORD']
+from Constants import Constants
 
-baseLink = os.environ['BASE_LINK']
+username = Constants.username
+password = Constants.password
+
+baseLink = Constants.baseLink
 
 def authenticate():
     url = baseLink + '/authenticate'
@@ -89,14 +91,14 @@ def getUsers(headers):
     return users
 
 def getTeacherIdForUse(headers, par):
-    url = baseLink + '/teacher?teacherFullName='+ par
+    url = baseLink + '/teacher/byFirstAndLastName/' + par
     x = requests.get(url, headers = headers)
     teacher = x.text
     
     return teacher
 
 def getGroupByNumber(headers, par):
-    url = baseLink + '/group?groupNumber='+ par
+    url = baseLink + '/group/byNumber/' + par
     x = requests.get(url, headers = headers)
     group = x.text
 
