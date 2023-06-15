@@ -9,7 +9,6 @@ from courses import coursesList
 from groups import *
 from disciplines import disciplinesList
 from Constants import Constants
-from groups import groupsList
 import markup as botMarkup
 from apiService import *
 from schedule import *
@@ -157,13 +156,19 @@ def messageListener(message):
         if checkRegistration(message,headers):
             todayDate = dayToday().strftime("%Y-%m-%d")
             userId = message.from_user.id
-            userData = checkUserPerson(headers,userId)
-            change = getChangesForRegUser(headers, todayDate, userData)
+            userData = getUserId(getUserById(userId, headers))
+            if userData.isStudent == True:
+                userGroup = str(extractGroupNumber(getGroupById(headers, userData.id)))
+
+            else:
+                userGroup = -1
+            
+            change = getChanges(headers, todayDate)
 
             print("Changes for today")
             
-            changes = changeCreator(change)
-            if changes == " ":
+            changes = changeCreator(change, userGroup)
+            if changes == " \n":
                     changes = "Змін немає"
             tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
 
@@ -173,12 +178,19 @@ def messageListener(message):
         if checkRegistration(message,headers):
             tomorrowDate = dayTomorrow().strftime("%Y-%m-%d")
             userId = message.from_user.id
-            userData = checkUserPerson(headers,userId)
-            change = getChangesForRegUser(headers, tomorrowDate, userData)
+
+            userData = getUserId(getUserById(userId, headers))
+            if userData.isStudent == True:
+                userGroup = str(extractGroupNumber(getGroupById(headers, userData.id)))
+
+            else:
+                userGroup = -1
+
+            change = getChanges(headers, tomorrowDate)
 
             print("Changes for tomorrow")
-            changes = changeCreator(change)
-            if changes == " ":
+            changes = changeCreator(change, userGroup)
+            if changes == " \n":
                 changes = "Змін немає"
             tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
         
@@ -565,14 +577,18 @@ def showCollegeFloor(message):
 
 #----------------------------Main Thread-------------------------------
 def main():
+    
     users = getUsers(headers)
     userIds = allUsersIds(users)
 
     if Constants.restart:
         for id in userIds:
-            tbot.send_message(chat_id=id, text="Випущено нову версію бота, автоматичне перезавантаження 🔄",reply_markup=botMarkup.mainMenuMarkup())
-        
-    print("Reload messages sent")
+            try:
+                tbot.send_message(chat_id=id, text="Випущено нову версію бота, автоматичне перезавантаження 🔄",reply_markup=botMarkup.mainMenuMarkup())
+                print("Reload messages sent")
+            except:
+                print ("Error in sending messages")
+    
     tbot.infinity_polling()
     
 if __name__ == "__main__":

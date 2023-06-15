@@ -136,13 +136,12 @@ def getScheduleByTeacher(headers, par):
     schedule = json.dumps(sorted_data)
     return schedule
 
-def getChangesForRegUser(headers, date, userData):
-    url = baseLink + '/change?date='+ str(date) +str(userData)
+def getChanges(headers, date):
+    url = baseLink + '/change?date='+ str(date)
     x = requests.get(url, headers = headers)
     changeForGroup = json.loads(x.text)
-    sorted_data = sorted(changeForGroup, key=lambda x: x['lessonNumber'])
 
-    change = json.dumps(sorted_data)
+    change = json.dumps(changeForGroup)
     return change
 
 def getScheduleForRegUser(headers, date, userData):
