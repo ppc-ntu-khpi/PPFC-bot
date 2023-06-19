@@ -1,3 +1,7 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
 from enum import Enum
 
 class MainMenuButtons(str, Enum):

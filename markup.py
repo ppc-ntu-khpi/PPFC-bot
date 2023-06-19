@@ -1,3 +1,7 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
 from telebot import types
 from apiService import checkUser
 

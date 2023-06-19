@@ -1,4 +1,6 @@
-
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""

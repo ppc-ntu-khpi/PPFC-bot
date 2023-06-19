@@ -1,3 +1,7 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
 import json
 from groups import Group
 from teachers import Teacher
@@ -5,7 +9,12 @@ from teachers import Teacher
 class Change:
     def __init__(self, jsonDict):
         self.id = jsonDict["id"]
-        self.group = Group(jsonDict["group"])
+
+        groups = []
+        for group in jsonDict["groups"]:
+            groups.append(Group(group))
+        self.groups = groups
+
         if "classroom" in jsonDict:
             self.classroom = Classroom(jsonDict["classroom"])
         else:
@@ -46,7 +55,6 @@ class Classroom:
 def changeCreator(jsonStr, userGroup):
     changeDictList = json.loads(jsonStr)
     changes = {}
-    events = {}
 
     for changeDict in changeDictList:
         change = Change(changeDict)
@@ -56,9 +64,15 @@ def changeCreator(jsonStr, userGroup):
             subject = None
         else:
             subject = change.subject.name
-
+        
         lessonNumber = change.lessonNumber
-        group = change.group.number
+
+        groupMatch = False
+        for group in change.groups:
+            if str(group.number) == str(userGroup):
+                groupMatch = True
+        groups = ', '.join(str(obj.number) for obj in change.groups)
+
 
         if change.teacher is None:
             teacher = None
@@ -80,70 +94,52 @@ def changeCreator(jsonStr, userGroup):
         if date not in changes:
             changes[date] = []
 
-        changes[date].append((lessonNumber, subject, group, teacher, classroom, event, dayNumber, isNumerator))
+        changes[date].append((lessonNumber, subject, groups, teacher, classroom, event, dayNumber, isNumerator, groupMatch))
 
-        # Grouping by event
-        if event is not None:
-            if event not in events:
-                events[event] = []
-            events[event].append((group, lessonNumber, subject, teacher, classroom))
-        
     changeForm = " "
     for date, change in changes.items():
-        changeForm += "*Зміни на " + str(date) + formatNumberToDay(dayNumber) + formatIsNumerator(isNumerator) + "*\n"
+        changeForm += "*Зміни на " + str(date) + "*\n"
         for lesson in change:
+            symbol = " ➡️ "
+            
+            if bool(lesson[8]):
+                symbol = " ❇️ "
+
+            if str(lesson[4]) == "зал":
+                lessonEnding = ""
+            else:
+                lessonEnding = " ауд."
+
+            groupSegment = str(lesson[2]) + " група"
+
+            if lesson[1] == None:
+                subjectSegment = ""
+            else:
+                subjectSegment = symbol + str(lesson[1])
 
             if lesson[5] == None:
-                symbol = " ➡️ "
+                eventSegment = ""
+            else:
+                eventSegment = symbol + str(lesson[5])
 
-                if userGroup == str(lesson[2]):
-                    symbol = " ✅ "
+            if lesson[0] == None:
+                lessonNumSegment = ""
+            else:
+                lessonNumSegment = symbol + str(lesson[0]) + " пара"
 
-                if str(lesson[4]) == "зал":
-                    lessonEnding = ""
-                else:
-                    lessonEnding = " ауд."
+            if lesson[3] == None:
+                teacherSegment = ""
+            else:
+                teacherSegment = symbol + str(lesson[3])
 
-                groupSegment = str(lesson[2]) + " група"
+            if lesson[4] == None:
+                classroomSegment = ""
+            else:
+                classroomSegment = symbol + str(lesson[4]) + lessonEnding
 
-                if lesson[1] is None:
-                    subjectSegment = ""
-                else:
-                    subjectSegment = symbol + str(lesson[1])
 
-                if lesson[5] is None:
-                    eventSegment = ""
-                else:
-                    eventSegment = symbol + str(lesson[5])
-
-                if lesson[0] is None:
-                    lessonNumSegment = ""
-                else:
-                    lessonNumSegment = symbol + str(lesson[0]) + " пара"
-
-                if lesson[3] is None:
-                    teacherSegment = ""
-                else:
-                    teacherSegment = symbol + str(lesson[3])
-
-                if lesson[4] is None:
-                    classroomSegment = ""
-                else:
-                    classroomSegment = symbol + str(lesson[4]) + lessonEnding
-
-                changeForm += groupSegment + eventSegment + lessonNumSegment + subjectSegment + teacherSegment + classroomSegment + "\n"
-            else: continue
-    # Grouping by event
-    eventForm = ""
-    for event, event_lessons in events.items():
-        groups = ", ".join(str(lesson[0]) for lesson in event_lessons)
-        if userGroup in groups:
-            eventForm += groups + " групи ✅ " + event + "\n"
-        else:
-            eventForm += groups + " групи ➡️ " + event + "\n"
-
-    return changeForm + "\n" + eventForm
-
+            changeForm += groupSegment + eventSegment + lessonNumSegment + subjectSegment + teacherSegment +  classroomSegment + "\n"
+    return changeForm
 
 
 def formatNumberToDay(dayNumber):
@@ -169,7 +165,10 @@ def formatIsNumerator(bool):
 
 #Lesson0 = lessonNumber +
 #lesson1 = subject +
-#lesson2 = group
+#lesson2 = groups
 #lesson3 = teacher +
 #lesson4 = classroom +
 #lesson5 = event +
+#lesson6 = dayNumber
+
+#lesson8 = groupMatch

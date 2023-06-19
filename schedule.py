@@ -1,3 +1,7 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
 import json
 from groups import Group
 from teachers import Teacher

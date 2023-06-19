@@ -1,3 +1,7 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
 import json
 from apiService import getUserById
 from groups import Group

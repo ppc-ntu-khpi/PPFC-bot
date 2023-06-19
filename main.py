@@ -1,3 +1,7 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
 import datetime
 from threading import Thread
 from time import sleep
@@ -101,6 +105,8 @@ def messageListener(message):
     global disciplinesButtonsNames
     global teacherButtonNames
     global headers
+    global today
+    global tomorrow
     userId = message.from_user.id
     if message.text ==  Register.TEACHER.value:
         headers = recreateToken(headers)
@@ -114,10 +120,11 @@ def messageListener(message):
         tbot.register_next_step_handler(message, getGroupsNumbers, headers)
 
     if message.text == MainMenuButtons.SCHEDULE_TODAY.value:
+        todayDate = dayToday().weekday() + 1
+
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
-            todayDate = dayToday().weekday() + 1
-
+            
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, todayDate, userData)
@@ -129,6 +136,10 @@ def messageListener(message):
             if scheduleForm == " ":
                 scheduleForm = "Розклад відсутній"
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm, parse_mode="Markdown")
+
+            date = dayToday().strftime("%Y-%m-%d")
+            fullChanges = False
+            showChanges(message, headers, date, fullChanges)
         
 
     if message.text == MainMenuButtons.SCHEDULE_TOMORROW.value:
@@ -150,49 +161,21 @@ def messageListener(message):
                 scheduleForm = "Розклад відсутній"
             tbot.send_message(chat_id=message.chat.id, text= scheduleForm, parse_mode="Markdown")
 
+            date = dayTomorrow().strftime("%Y-%m-%d")
+            fullChanges = False
+            showChanges(message, headers, date, fullChanges)
+
 
     if message.text == MainMenuButtons.CHANGES_TODAY.value:
-        headers = recreateToken(headers)
-        if checkRegistration(message,headers):
-            todayDate = dayToday().strftime("%Y-%m-%d")
-            userId = message.from_user.id
-            userData = getUserId(getUserById(userId, headers))
-            if userData.isStudent == True:
-                userGroup = str(extractGroupNumber(getGroupById(headers, userData.id)))
-
-            else:
-                userGroup = -1
-            
-            change = getChanges(headers, todayDate)
-
-            print("Changes for today")
-            
-            changes = changeCreator(change, userGroup)
-            if changes == " \n":
-                    changes = "Змін немає"
-            tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
-
+        today = dayToday().strftime("%Y-%m-%d")
+        fullChanges = True
+        showChanges(message, headers, today, fullChanges)
 
     if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
-        headers = recreateToken(headers)
-        if checkRegistration(message,headers):
-            tomorrowDate = dayTomorrow().strftime("%Y-%m-%d")
-            userId = message.from_user.id
-
-            userData = getUserId(getUserById(userId, headers))
-            if userData.isStudent == True:
-                userGroup = str(extractGroupNumber(getGroupById(headers, userData.id)))
-
-            else:
-                userGroup = -1
-
-            change = getChanges(headers, tomorrowDate)
-
-            print("Changes for tomorrow")
-            changes = changeCreator(change, userGroup)
-            if changes == " \n":
-                changes = "Змін немає"
-            tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
+        tomorrow = dayTomorrow().strftime("%Y-%m-%d")
+        fullChanges = True
+        showChanges(message, headers, tomorrow, fullChanges)
+        
         
         
     if message.text ==  MainMenuButtons.FIND_BY_TEACHER.value:
@@ -371,7 +354,7 @@ def scheduleByDay(message, headers):
         user = getUserId(getUserById(userId, headers))
         scheduleForm = scheduleCreator(schedule, None, user.isStudent)
         if scheduleForm == " ":
-                scheduleForm = "Розклад на цей день відсутній"
+            scheduleForm = "Розклад на цей день відсутній"
         tbot.send_message(chat_id=message.chat.id, text= scheduleForm, parse_mode="Markdown")
         tbot.register_next_step_handler(message, scheduleByDay, headers)
 
@@ -447,6 +430,35 @@ def showTeachers(message, headers):
         markup = botMarkup.tripleMarkup(teacherButtonNames)
         tbot.send_message(chat_id=message.chat.id, text= "Оберіть викладача:", reply_markup=markup)
         tbot.register_next_step_handler(message, finalTeacherSearch, headers, par)
+
+#---------------------------------------- Changes -------------------------------------------
+def showChanges(message, headers, date, fullChanges):
+    headers = recreateToken(headers)
+    if checkRegistration(message,headers):
+
+        userId = message.from_user.id
+        userData = getUserId(getUserById(userId, headers))
+        user = ""
+        if userData.isStudent == True:
+            userGroup = str(extractGroupNumber(getGroupById(headers, userData.id)))
+            if not fullChanges:
+                user = checkUserPerson(headers,userId)
+
+        else:
+            userGroup = -1
+
+        change = getChanges(headers, date, user)
+
+        if str(date) == str (today):
+            print("Changes for today: "+ today)
+        if str(date) == str( tomorrow):
+            print("Changes for next day: " + tomorrow)
+            
+        changes = changeCreator(change, userGroup)
+        if changes == " ":
+            changes = "Змін немає"
+        tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
+
 
 
 

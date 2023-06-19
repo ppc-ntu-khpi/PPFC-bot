@@ -1,3 +1,8 @@
+#-----------------------------------------
+#-  Copyright (c) 2023. Lazovikov Illia  -
+#-----------------------------------------
+
+
 import requests
 import json
 import datetime
@@ -136,11 +141,10 @@ def getScheduleByTeacher(headers, par):
     schedule = json.dumps(sorted_data)
     return schedule
 
-def getChanges(headers, date):
-    url = baseLink + '/change?date='+ str(date)
+def getChanges(headers, date, userData):
+    url = baseLink + '/change?date=' + str(date) + str(userData)
     x = requests.get(url, headers = headers)
     changeForGroup = json.loads(x.text)
-
     change = json.dumps(changeForGroup)
     return change
 
