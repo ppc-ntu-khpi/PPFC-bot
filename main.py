@@ -100,7 +100,7 @@ def changeData(message):
 
 @tbot.message_handler(commands=["admin"])
 def admin(message):
-    headers = recreateToken(headers)
+    recreateToken(headers)
     userId = message.from_user.id
     markup = botMarkup.mainMenuButtonMarkup()
     replyMessage = "Введіть код адміністратора"
@@ -477,7 +477,7 @@ def showChanges(message, headers, date, fullChanges):
 
 #--------------------------------------- Admin Panel -------------------------------------------
 def getAdminPin(message):
-    headers = recreateToken(headers)
+    recreateToken(headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -506,7 +506,7 @@ def getAdminPin(message):
 
 
 def getMessage(message):
-    headers = recreateToken(headers)
+    recreateToken(headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
