@@ -156,3 +156,11 @@ def getScheduleForRegUser(headers, date, userData):
 
     change = json.dumps(sorted_data)
     return change
+
+
+def getAdminPinFromApi(headers, pin):
+    url = baseLink + '/accessKey/verify/{}'.format(pin)
+    x = requests.get(url, headers = headers)
+    pinStatus = x.text
+
+    return pinStatus

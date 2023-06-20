@@ -10,8 +10,7 @@ class Constants(object):
     username = os.environ['USERNAME']
     password = os.environ['PASSWORD']
     baseLink = os.environ['BASE_LINK']
-    restart = os.environ["HARD_RESTART"]
-    version ="(v0.9.5)"
+    version ="(v0.9.6)"
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):

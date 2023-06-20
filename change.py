@@ -98,7 +98,7 @@ def changeCreator(jsonStr, userGroup):
 
     changeForm = " "
     for date, change in changes.items():
-        changeForm += "*Зміни на " + str(date) + "*\n"
+        changeForm += "*Зміни на " + str(date) + formatNumberToDay(dayNumber) + formatIsNumerator(isNumerator) + "*\n"
         for lesson in change:
             symbol = " ➡️ "
             
@@ -150,7 +150,7 @@ def formatNumberToDay(dayNumber):
     if dayNumber == 3:
         dayName = " (Середа: "
     if dayNumber == 4:
-        dayName = " (Четвер:"
+        dayName = " (Четвер: "
     if dayNumber == 5:
         dayName = " (П'ятниця: "
     return dayName
@@ -170,5 +170,5 @@ def formatIsNumerator(bool):
 #lesson4 = classroom +
 #lesson5 = event +
 #lesson6 = dayNumber
-
+#lesson7 = isNumerator
 #lesson8 = groupMatch

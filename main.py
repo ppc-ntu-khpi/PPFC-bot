@@ -98,6 +98,21 @@ def changeData(message):
         tbot.send_message(chat_id=message.chat.id, text=replyMessage, reply_markup=markup)
 
 
+@tbot.message_handler(commands=["admin"])
+def admin(message):
+    headers = recreateToken(headers)
+    userId = message.from_user.id
+    markup = botMarkup.mainMenuButtonMarkup()
+    replyMessage = "Введіть код адміністратора"
+    
+    print("/admin panel accessed")
+
+    tbot.send_message(chat_id=message.chat.id, text=replyMessage, reply_markup=markup)
+    tbot.register_next_step_handler(message, getAdminPin)
+
+
+
+
 @tbot.message_handler(content_types = "text")
 def messageListener(message):
     global coursesButtonsNames
@@ -460,7 +475,55 @@ def showChanges(message, headers, date, fullChanges):
         tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
 
 
+#--------------------------------------- Admin Panel -------------------------------------------
+def getAdminPin(message):
+    headers = recreateToken(headers)
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        adminPin = message.text
+        pinStatus = getAdminPinFromApi(headers, adminPin)
 
+        print("Entered pin: " + adminPin)
+        print("Status: " + str(pinStatus))
+
+        if pinStatus == "true":
+            print("Pin is correct, write a message")
+
+            pinStatus = True
+            replyText = "Пін введено правильно.\n\nВведіть повідомлення, яке буде розіслано усім користувачам бота"
+            markup =  botMarkup.mainMenuButtonMarkup()
+            tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
+            tbot.register_next_step_handler(message, getMessage)
+        else:
+            print("Incorrect pin, /admin called")
+            replyText = "Невірний пін"
+            markup =  botMarkup.mainMenuButtonMarkup()
+            tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
+            admin(message)
+
+        
+
+
+def getMessage(message):
+    headers = recreateToken(headers)
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    else:
+        replyText = message.text
+        users = getUsers(headers)
+        userIds = allUsersIds(users)
+        markup =  botMarkup.mainMenuMarkup()
+        
+        for id in userIds:
+            try:
+                print("Sending message to " + id)
+                tbot.send_message(chat_id=id, text= replyText, reply_markup = markup)
+            except:
+                print("Error in sending message to " + id)        
+
+
+        
 
 #------------------------------------ Registration Block ------------------------------------------
 def registerAsTeacher(headers,message):
@@ -589,17 +652,6 @@ def showCollegeFloor(message):
 
 #----------------------------Main Thread-------------------------------
 def main():
-    
-    users = getUsers(headers)
-    userIds = allUsersIds(users)
-
-    if Constants.restart:
-        for id in userIds:
-            try:
-                tbot.send_message(chat_id=id, text="Випущено нову версію бота, автоматичне перезавантаження 🔄",reply_markup=botMarkup.mainMenuMarkup())
-                print("Reload messages sent")
-            except:
-                print ("Error in sending messages")
     
     tbot.infinity_polling()
     

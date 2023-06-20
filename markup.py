@@ -155,7 +155,11 @@ def fiveRegMarkup(Names, userId, headers):
         markup.row(mainMenu)
     return markup
 
-
+def mainMenuButtonMarkup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+    mainMenu = types.KeyboardButton(MainMenuButtons.MAIN_MENU.value)
+    markup.row(mainMenu)
+    return markup
 
 
 def additionalFuncMarkup():
