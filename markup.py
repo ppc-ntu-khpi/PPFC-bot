@@ -193,3 +193,14 @@ def collegeMapMarkup():
     markup.row(mainMenu)
 
     return markup
+
+def confirmationMarkup():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+    button1 = types.KeyboardButton(Confirmator.YES)
+    button2 = types.KeyboardButton(Confirmator.EDIT)
+    button3 = types.KeyboardButton(Confirmator.NO)
+
+    markup.row(button1, button3)
+    markup.row(button2)
+
+    return markup

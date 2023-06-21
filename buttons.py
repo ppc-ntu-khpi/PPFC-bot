@@ -38,3 +38,8 @@ class CollegeFloors(str, Enum):
     FIRST_FLOOR = "I",
     SECOND_FLOOR = "II",
     THIRD_FLOOR = "III"
+
+class Confirmator(str, Enum):
+    YES = "Так",
+    NO = "Ні"
+    EDIT = "Редагувати"

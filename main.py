@@ -20,16 +20,18 @@ from teachers import *
 from users import *
 import sched, time
 import os
-
+from pytz import timezone
 
 
 #--------------------- Date Control -------------------------------
 def dayToday():
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 0)
+    ukraine_time = timezone('Europe/Kiev')
+    now = datetime.datetime.now(ukraine_time)
     return now
 
 def dayTomorrow():
-    tomorrow = datetime.datetime.utcnow() + datetime.timedelta(hours=2) + datetime.timedelta(days = 1)
+    ukraine_time = timezone('Europe/Kiev')
+    tomorrow = datetime.datetime.now(ukraine_time) + datetime.timedelta(days = 1)
     return tomorrow
 
 today = dayToday()
@@ -491,18 +493,16 @@ def getAdminPin(message):
             print("Pin is correct, write a message")
 
             pinStatus = True
-            replyText = "Пін введено правильно.\n\nВведіть повідомлення, яке буде розіслано усім користувачам бота"
+            replyText = "🟢 Пін введено правильно 🟢\n\nВведіть повідомлення, яке буде розіслано усім користувачам бота"
             markup =  botMarkup.mainMenuButtonMarkup()
             tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
             tbot.register_next_step_handler(message, getMessage)
         else:
             print("Incorrect pin, /admin called")
-            replyText = "Невірний пін"
+            replyText = "🔴 Невірний пін 🔴"
             markup =  botMarkup.mainMenuButtonMarkup()
             tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
             admin(message)
-
-        
 
 
 def getMessage(message):
@@ -510,20 +510,44 @@ def getMessage(message):
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
-        replyText = message.text
+        print("Message wroten, confirmation required")
+        adminMessage = message.text
+        replyText = "Ви точно хочете надіслати повідомлення?"
+        markup = botMarkup.confirmationMarkup()
+        tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
+        tbot.register_next_step_handler(message, confirmation, adminMessage)
+                
+
+def confirmation(message, adminMessage):
+    recreateToken(headers)
+    if MainMenuCheck(message):
+        returnToMainMenu(message)
+    if message.text == Confirmator.YES.value:
+
         users = getUsers(headers)
         userIds = allUsersIds(users)
-        markup =  botMarkup.mainMenuMarkup()
+        markupMenu = botMarkup.mainMenuMarkup()
+        print("Message confirmed, sending started")
         
         for id in userIds:
             try:
                 print("Sending message to " + id)
-                tbot.send_message(chat_id=id, text= replyText, reply_markup = markup)
+                tbot.send_message(chat_id=id, text= adminMessage, reply_markup = markupMenu)
+                print(id + ", Done\n")
             except:
-                print("Error in sending message to " + id)        
+                print("Error in sending message to " + id +"\n")      
 
-
+    if message.text == Confirmator.NO.value:
+        print("Main menu")
+        returnToMainMenu(message)
         
+    if message.text == Confirmator.EDIT.value:
+        print("Message editing mode")
+        replyText = "Відредагуйте ваше повідомлення, скопіювавши його\n\n" + adminMessage
+        markup =  botMarkup.mainMenuButtonMarkup()
+        tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
+        tbot.register_next_step_handler(message, getMessage)
+          
 
 #------------------------------------ Registration Block ------------------------------------------
 def registerAsTeacher(headers,message):
