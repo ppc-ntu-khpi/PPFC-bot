@@ -522,6 +522,7 @@ def confirmation(message, adminMessage):
     recreateToken(headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
+
     if message.text == Confirmator.YES.value:
 
         users = getUsers(headers)
@@ -537,17 +538,22 @@ def confirmation(message, adminMessage):
             except:
                 print("Error in sending message to " + id +"\n")      
 
-    if message.text == Confirmator.NO.value:
+    elif message.text == Confirmator.NO.value:
         print("Main menu")
         returnToMainMenu(message)
         
-    if message.text == Confirmator.EDIT.value:
+    elif message.text == Confirmator.EDIT.value:
         print("Message editing mode")
         replyText = "Відредагуйте ваше повідомлення, скопіювавши його\n\n" + adminMessage
         markup =  botMarkup.mainMenuButtonMarkup()
         tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
         tbot.register_next_step_handler(message, getMessage)
-          
+    else:
+        print('No confirmation, trying again')
+        replyText = "Помилка підтвердження. Ви не вибрали кнопку.\nВи точно хочете надіслати повідомлення?"
+        markup = botMarkup.confirmationMarkup()     
+        tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
+        tbot.register_next_step_handler(message, confirmation, adminMessage)
 
 #------------------------------------ Registration Block ------------------------------------------
 def registerAsTeacher(headers,message):
