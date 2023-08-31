@@ -52,7 +52,7 @@ class Classroom:
         self.id = jsonDict["id"]
         self.name = jsonDict["name"]
 
-def changeCreator(jsonStr, userGroup):
+def changeCreator(jsonStr, userData, userMarker):
     changeDictList = json.loads(jsonStr)
     changes = {}
 
@@ -67,10 +67,10 @@ def changeCreator(jsonStr, userGroup):
         
         lessonNumber = change.lessonNumber
 
-        groupMatch = False
+        markerMatch = False
         for group in change.groups:
-            if str(group.number) == str(userGroup):
-                groupMatch = True
+            if str(group.number) == str(userData):
+                markerMatch = True
         groups = ', '.join(str(obj.number) for obj in change.groups)
 
 
@@ -78,6 +78,9 @@ def changeCreator(jsonStr, userGroup):
             teacher = None
         else:
             teacher = change.teacher.firstName + " " + change.teacher.lastName
+            if userMarker == False:
+                if teacher == str(userData):
+                    markerMatch = True
 
         if change.classroom is None:
             classroom = None
@@ -94,7 +97,7 @@ def changeCreator(jsonStr, userGroup):
         if date not in changes:
             changes[date] = []
 
-        changes[date].append((lessonNumber, subject, groups, teacher, classroom, event, dayNumber, isNumerator, groupMatch))
+        changes[date].append((lessonNumber, subject, groups, teacher, classroom, event, dayNumber, isNumerator, markerMatch))
 
     changeForm = " "
     for date, change in changes.items():
@@ -171,4 +174,4 @@ def formatIsNumerator(bool):
 #lesson5 = event +
 #lesson6 = dayNumber
 #lesson7 = isNumerator
-#lesson8 = groupMatch
+#lesson8 = markerMatch

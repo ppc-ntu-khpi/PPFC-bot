@@ -456,14 +456,23 @@ def showChanges(message, headers, date, fullChanges):
         userId = message.from_user.id
         userData = getUserId(getUserById(userId, headers))
         user = ""
+        userMarker = ""
+        isStudent = False
         if userData.isStudent == True:
             userGroup = str(extractGroupNumber(getGroupById(headers, userData.id)))
+            userMarker = userGroup
+            isStudent = True
             if not fullChanges:
                 user = checkUserPerson(headers,userId)
-
         else:
+            userTeacher = str(extractTeacherName(getTeacherById(headers,userData.id)))
+            userMarker = userTeacher
+            isStudent = False
+            if not fullChanges:
+                user = checkUserPerson(headers,userId)
             userGroup = -1
 
+        print(userMarker)
         change = getChanges(headers, date, user)
 
         if str(date) == str (today):
@@ -471,7 +480,7 @@ def showChanges(message, headers, date, fullChanges):
         if str(date) == str( tomorrow):
             print("Changes for next day: " + tomorrow)
             
-        changes = changeCreator(change, userGroup)
+        changes = changeCreator(change, userMarker, isStudent)
         if changes == " ":
             changes = "Змін немає"
         tbot.send_message(chat_id=message.chat.id, text= changes, parse_mode="Markdown")
